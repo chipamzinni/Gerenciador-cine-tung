@@ -4318,9 +4318,10 @@ label.lbl {
         "netflix.com", "primevideo", "disneyplus", "hbomax", "max.com",
         "spotify.com", "cinecalidad", "pelispedia", "verpeliculas",
         "entrepeliculas", "grantorrent", "divxtotal",
-        "solo-latino", "latino.solo", "solo-lat", "cuevana",
-        "superflix", "filmesonline", "warezcdn", "embed.", "player.",
-        "overflix", "megafilmes", "redecanais", "cmd5.", "votando"
+        "solo-latino", "latino.solo", "sololatino", "solo-lat", "solo.latino",
+        "superflix", "filmesonline", "warezcdn", "embed.",
+        "overflix", "megafilmes", "redecanais", "cmd5.", "votando",
+        "fmovies", "soap2day", "lookmovie", "himovies", "cinemaxx"
       ];
       for (var i = 0; i < blocked.length; i++) {
         if (host.indexOf(blocked[i]) >= 0) return true;
@@ -4349,9 +4350,23 @@ label.lbl {
   function openExternalUrl(url) {
     if (!url) return false;
     url = String(url).trim();
+    // normaliza e bloqueia schemes inválidos (intent, about, javascript)
+    if (/^(intent|about|chrome|javascript|file|data):/i.test(url)) {
+      try {
+        var m = url.match(/[?&](?:url|link)=([^&]+)/i) || url.match(/https?:\/\/[^\s#]+/i);
+        if (m) url = decodeURIComponent(m[1] || m[0]);
+      } catch (e) {}
+    }
+    if (!/^https?:\/\//i.test(url)) {
+      if (/^[\w.-]+\.[a-z]{2,}/i.test(url)) url = "https://" + url;
+      else return false;
+    }
+    // remove fragmentos de intent colados
+    url = url.replace(/#Intent;[\s\S]*$/i, "").trim();
+
     var opened = false;
 
-    // 0) AndroidAPI / HtmlToApk bridges (várias assinaturas)
+    // 0) Bridges do HTML-to-APK / Android (melhor caminho)
     try {
       var bridges = [];
       if (typeof AndroidAPI !== "undefined") bridges.push(AndroidAPI);
@@ -4359,14 +4374,14 @@ label.lbl {
       if (window.Android) bridges.push(window.Android);
       if (window.AndroidInterface) bridges.push(window.AndroidInterface);
       if (window.JSBridge) bridges.push(window.JSBridge);
-      var methods = ["openUrl", "openExternal", "openExternalUrl", "openBrowser", "openInBrowser", "launchUrl", "openLink"];
+      var methods = ["openUrl", "openExternal", "openExternalUrl", "openBrowser", "openInBrowser", "launchUrl", "openLink", "open"];
       for (var b = 0; b < bridges.length && !opened; b++) {
         var api = bridges[b];
         if (!api) continue;
-        for (var m = 0; m < methods.length; m++) {
+        for (var mi = 0; mi < methods.length; mi++) {
           try {
-            if (typeof api[methods[m]] === "function") {
-              api[methods[m]](url);
+            if (typeof api[methods[mi]] === "function") {
+              api[methods[mi]](url);
               opened = true;
               break;
             }
@@ -4375,7 +4390,7 @@ label.lbl {
       }
     } catch (e) {}
 
-    // 1) Cordova
+    // 1) Cordova / InAppBrowser
     try {
       if (!opened && window.cordova && window.cordova.InAppBrowser) {
         window.cordova.InAppBrowser.open(url, "_system");
@@ -4383,55 +4398,43 @@ label.lbl {
       }
     } catch (e) {}
 
-    // 2) intent:// (Chrome/Android)
+    // 2) window.open (vários alvos)
     if (!opened) {
       try {
-        var intent = "intent://" + url.replace(/^https?:\/\//i, "") +
-          "#Intent;scheme=https;action=android.intent.action.VIEW;end";
-        var a = document.createElement("a");
-        a.href = intent;
-        a.style.display = "none";
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function () { try { a.remove(); } catch (e) {} }, 400);
-        opened = true;
-      } catch (e) {}
-    }
-
-    // 3) window.open
-    if (!opened) {
-      try {
-        var w = window.open(url, "_system");
+        var w = window.open(url, "_blank");
         if (w) opened = true;
       } catch (e) {}
     }
     if (!opened) {
       try {
-        var w2 = window.open(url, "_blank");
+        var w2 = window.open(url, "_system");
         if (w2) opened = true;
       } catch (e) {}
     }
 
-    // 4) <a target=_blank>
+    // 3) <a target=_blank> — NÃO usa intent:// (WebView do APK trata como página e dá ERR_UNKNOWN_URL_SCHEME)
     if (!opened) {
       try {
         var a2 = document.createElement("a");
         a2.href = url;
         a2.target = "_blank";
         a2.rel = "noopener noreferrer";
-        a2.setAttribute("download", ""); // alguns WebViews ignoram
         a2.style.display = "none";
         document.body.appendChild(a2);
         a2.click();
-        setTimeout(function () { try { a2.remove(); } catch (e) {} }, 400);
+        setTimeout(function () { try { a2.remove(); } catch (e) {} }, 500);
         opened = true;
       } catch (e) {}
     }
 
-    // NÃO usa location.href aqui — isso mantém o site bloqueado DENTRO do APK
-    try { toast(opened ? "Abrindo no navegador…" : "Toque em Abrir no navegador"); } catch (e) {}
+    // NUNCA location.href = url/intent (prende o usuário no WebView ou tela de erro)
+    try { toast(opened ? "Abrindo fora do app…" : "Não foi possível abrir · copie o link"); } catch (e) {}
+
+    // marca para recuperar UI ao voltar
+    try { sessionStorage.setItem("__cine_expect_return", "1"); } catch (e) {}
     return opened;
   }
+
   function renderExternalCard(stage, url, reason) {
     setNativeControlsVisible(false);
     stage.innerHTML = "";
@@ -5746,17 +5749,48 @@ label.lbl {
   try { showViewer(); } catch (e) {
     try { $("viewApp").classList.add("on"); $("adminApp").classList.remove("on"); } catch (e2) {}
   }
-  // ao voltar de site externo, garante viewer
-  try {
-    window.addEventListener("pageshow", function () {
-      try {
-        if ($("adminApp") && $("adminApp").classList.contains("on") && !$("crownGate").classList.contains("open")) {
-          // se não passou pela coroa nesta sessão, força viewer
-          if (!window.__cineAdminUnlocked) showViewer();
-        }
-      } catch (e) {}
-    });
-  } catch (e) {}
+
+  function recoverAppUi() {
+    try {
+      // tira splash residual
+      var sp = document.getElementById("splash");
+      if (sp) {
+        try { sp.classList.add("hide"); sp.classList.add("gone"); sp.style.display = "none"; sp.style.pointerEvents = "none"; } catch (e) {}
+        try { if (sp.parentNode) sp.parentNode.removeChild(sp); } catch (e) {}
+      }
+      // garante viewer
+      var admin = document.getElementById("adminApp");
+      var view = document.getElementById("viewApp");
+      if (admin) admin.classList.remove("on");
+      if (view) {
+        view.classList.add("on");
+        view.style.display = "block";
+        view.style.visibility = "visible";
+        view.style.opacity = "1";
+      }
+      document.body.style.background = "#000";
+      try { showViewer(); } catch (e) {}
+      try { renderGrid(); } catch (e) {}
+    } catch (e) {}
+  }
+  window.addEventListener("pageshow", function () {
+    try {
+      recoverAppUi();
+      if (sessionStorage.getItem("__cine_expect_return") === "1") {
+        sessionStorage.removeItem("__cine_expect_return");
+        recoverAppUi();
+      }
+    } catch (e) {}
+  });
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) {
+      try { recoverAppUi(); } catch (e) {}
+    }
+  });
+  window.addEventListener("focus", function () {
+    try { recoverAppUi(); } catch (e) {}
+  });
+
   try { runSplash(); } catch (e) {
     try { endSplash(); } catch (e2) {}
   }
