@@ -2604,23 +2604,25 @@ textarea#msgText, #msgText {
   padding: 12px; margin-top: 10px;
 }
 .toast {
-  position: fixed; right: 16px; bottom: 16px;
+  position: fixed; right: 16px; bottom: 90px;
   background: var(--panel); border: 1px solid var(--line);
   padding: 12px 16px; border-radius: 12px;
   opacity: 0; transform: translateY(10px);
-  transition: .3s var(--ease); z-index: 100;
+  transition: .3s var(--ease); z-index: 500;
+  pointer-events: none !important;
   box-shadow: var(--shadow); font-size: 13px; font-weight: 500;
 }
 .toast.show { opacity: 1; transform: none; }
 #updateBanner {
   display: none; position: fixed; left: 12px; right: 12px; top: 12px; z-index: 95;
+  pointer-events: none;
   background: var(--panel); border: 1px solid rgba(232,168,124,.35);
   border-radius: 14px; padding: 12px 14px;
   box-shadow: var(--shadow);
   align-items: center; justify-content: space-between; gap: 10px;
   animation: fadeUp .4s var(--ease);
 }
-#updateBanner.show { display: flex; }
+#updateBanner.show { display: flex; pointer-events: auto; }
 #updateBanner b { font-size: 13px; }
 #updateBanner .muted { margin: 2px 0 0; }
 label.lbl {
@@ -3600,6 +3602,22 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
     map[id] = poster;
     savePosterMap(map);
   }
+
+  function titlePosterDataUrl(title) {
+    var t = String(title || "Filme").slice(0, 28);
+    var svg =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600" viewBox="0 0 400 600">' +
+      '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0%" stop-color="#1a1a22"/><stop offset="100%" stop-color="#0c0c10"/>' +
+      '</linearGradient></defs>' +
+      '<rect width="400" height="600" fill="url(#g)"/>' +
+      '<rect x="24" y="24" width="352" height="552" rx="16" fill="none" stroke="#e8b86d" stroke-opacity="0.25" stroke-width="2"/>' +
+      '<text x="200" y="300" text-anchor="middle" fill="#e8b86d" font-family="system-ui,sans-serif" font-size="22" font-weight="600">' +
+      t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;") +
+      '</text></svg>';
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+
   function resolvePoster(item) {
     if (!item) return "";
     var p = (item.poster || "").trim();
@@ -3608,7 +3626,8 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
       var map = loadPosterMap();
       if (item.id && map[item.id]) return map[item.id];
     } catch (e) {}
-    return "";
+    // fallback visual (não apaga capas reais já existentes)
+    return titlePosterDataUrl(item.title || "");
   }
   function attachPosters(list) {
     var map = loadPosterMap();
@@ -4213,6 +4232,51 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
       box.appendChild(b);
     });
   }
+
+  var __bgIdb = null;
+  function bgIdb() {
+    return new Promise(function (resolve) {
+      try {
+        if (__bgIdb) { resolve(__bgIdb); return; }
+        if (!window.indexedDB) { resolve(null); return; }
+        var req = indexedDB.open("cinetung_bg_db", 1);
+        req.onupgradeneeded = function () {
+          try {
+            if (!req.result.objectStoreNames.contains("kv")) req.result.createObjectStore("kv");
+          } catch (e) {}
+        };
+        req.onsuccess = function () { __bgIdb = req.result; resolve(__bgIdb); };
+        req.onerror = function () { resolve(null); };
+      } catch (e) { resolve(null); }
+    });
+  }
+  function bgIdbSet(key, val) {
+    return bgIdb().then(function (db) {
+      if (!db) return false;
+      return new Promise(function (resolve) {
+        try {
+          var tx = db.transaction("kv", "readwrite");
+          tx.objectStore("kv").put(val, key);
+          tx.oncomplete = function () { resolve(true); };
+          tx.onerror = function () { resolve(false); };
+        } catch (e) { resolve(false); }
+      });
+    });
+  }
+  function bgIdbGet(key) {
+    return bgIdb().then(function (db) {
+      if (!db) return null;
+      return new Promise(function (resolve) {
+        try {
+          var tx = db.transaction("kv", "readonly");
+          var r = tx.objectStore("kv").get(key);
+          r.onsuccess = function () { resolve(r.result || null); };
+          r.onerror = function () { resolve(null); };
+        } catch (e) { resolve(null); }
+      });
+    });
+  }
+
   function clearBgImage() {
     try {
       var bg = document.getElementById("appBg");
@@ -4222,6 +4286,7 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
       }
       document.body.style.backgroundImage = "";
       localStorage.removeItem(BG_IMAGE_KEY);
+      try { bgIdbSet("bg", ""); } catch (e) {}
     } catch (e) {}
   }
   function paintBg(dataUrl) {
@@ -4253,44 +4318,26 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
     } catch (e) {}
   }
   function persistBgImage(dataUrl) {
-    // grava sempre a versão pequena o bastante pro localStorage
-    function trySave(str) {
-      try {
-        localStorage.setItem(BG_IMAGE_KEY, str);
-        return true;
-      } catch (e) { return false; }
-    }
-    if (trySave(dataUrl)) return Promise.resolve(true);
-    // comprime em degraus até caber
-    var steps = [[640, 0.45], [480, 0.38], [360, 0.32], [280, 0.28], [220, 0.24]];
-    return steps.reduce(function (chain, step) {
-      return chain.then(function (ok) {
-        if (ok) return true;
-        return compressDataUrl(dataUrl, step[0], step[1]).then(function (small) {
-          if (trySave(small)) {
-            paintBg(small);
-            return true;
-          }
-          return false;
-        });
-      });
-    }, Promise.resolve(false)).then(function (ok) {
-      if (!ok) {
-        try {
-          // último recurso: apaga capas antigas enormes do mapa de posters pra liberar espaço
-          try { localStorage.removeItem("cinetung_posters_v1"); } catch (e) {}
-          if (trySave(dataUrl)) return true;
-          return compressDataUrl(dataUrl, 200, 0.22).then(function (tiny) {
-            if (trySave(tiny)) { paintBg(tiny); return true; }
-            try { toast("Sem espaço no aparelho para o fundo"); } catch (e) {}
+    paintBg(dataUrl);
+    // 1) IndexedDB (sobrevive fechar APK / desligar)
+    return bgIdbSet("bg", dataUrl).then(function (okIdb) {
+      // 2) localStorage backup bem comprimido
+      function tryLS(str) {
+        try { localStorage.setItem(BG_IMAGE_KEY, str); return true; } catch (e) { return false; }
+      }
+      if (tryLS(dataUrl)) return true;
+      var steps = [[400, 0.35], [300, 0.28], [220, 0.22], [160, 0.18]];
+      return steps.reduce(function (chain, step) {
+        return chain.then(function (done) {
+          if (done) return true;
+          return compressDataUrl(dataUrl, step[0], step[1]).then(function (small) {
+            if (tryLS(small)) return true;
             return false;
           });
-        } catch (e) {
-          try { toast("Sem espaço no aparelho para o fundo"); } catch (e2) {}
-          return false;
-        }
-      }
-      return ok;
+        });
+      }, Promise.resolve(false)).then(function (okLs) {
+        return okIdb || okLs;
+      });
     });
   }
   function applyBgImage(dataUrl) {
@@ -4301,12 +4348,21 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
     });
   }
   function loadTheme() {
-    try {
-      var img = localStorage.getItem(BG_IMAGE_KEY);
+    // IndexedDB primeiro (permanente)
+    bgIdbGet("bg").then(function (img) {
       if (img) { paintBg(img); return; }
-      var c = localStorage.getItem(THEME_KEY);
-      if (c) applyBgColor(c);
-    } catch (e) {}
+      try {
+        var ls = localStorage.getItem(BG_IMAGE_KEY);
+        if (ls) { paintBg(ls); return; }
+        var c = localStorage.getItem(THEME_KEY);
+        if (c) applyBgColor(c);
+      } catch (e) {}
+    }).catch(function () {
+      try {
+        var ls2 = localStorage.getItem(BG_IMAGE_KEY);
+        if (ls2) paintBg(ls2);
+      } catch (e) {}
+    });
   }
   if ($("btnGenreDrawer")) $("btnGenreDrawer").onclick = function () { openDrawer(); };
   if ($("drawerClose")) $("drawerClose").onclick = function () { closeDrawer(); };
@@ -5174,7 +5230,7 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
       '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center">' +
       '<h2 style="margin:0;font-size:16px">Editar · ' + (item.type === "movie" ? "Filme" : "Série") + '</h2>' +
       '<span class="badge2 ' + (item.published ? "on" : "") + '">' + badgeText(item) + '</span></div>' +
-      '<label class="lbl">Banner (URL)</label><input id="f_poster" value="' + escapeHtml(item.poster || "") + '" />' +
+      '<label class="lbl">Banner (URL ou deixe a galeria)</label><input id="f_poster" value="' + escapeHtml((item.poster && item.poster.indexOf('data:') === 0) ? '' : (item.poster || '')) + '" placeholder="' + (item.poster && item.poster.indexOf('data:') === 0 ? 'Capa da galeria já definida' : 'https://...') + '" data-has-data="' + (item.poster && item.poster.indexOf('data:') === 0 ? '1' : '0') + '" />' +
       '<label class="lbl">Ou da galeria</label><input id="f_poster_file" type="file" accept="image/*" />' +
       '<img class="banner-preview" id="bannerPreview" ' + (item.poster ? 'src="' + escapeHtml(item.poster) + '"' : "") + ' />' +
       '<label class="lbl">Nome</label><input id="f_title" value="' + escapeHtml(item.title || "") + '" />' +
@@ -5240,7 +5296,16 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
 
     function readInto(item) {
       item.title = ($("f_title").value || item.title).trim();
-      item.poster = $("f_poster").value.trim();
+      var posterVal = $("f_poster").value.trim();
+      if (posterVal) {
+        item.poster = posterVal;
+      } else {
+        // mantém capa data: já salva se o campo URL estiver vazio
+        try {
+          var map = loadPosterMap();
+          if ((!item.poster || !String(item.poster).trim()) && item.id && map[item.id]) item.poster = map[item.id];
+        } catch (e) {}
+      }
       try { if (item.id && item.poster) rememberPoster(item.id, item.poster); } catch (e) {}
       item.description = $("f_desc").value;
       var rel = $("f_release").value;
@@ -5268,26 +5333,36 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
     }
 
     $("btnPublish").onclick = function () {
-      var list = loadRaw();
-      var it = null;
-      for (var i = 0; i < list.length; i++) if (list[i].id === currentId) it = list[i];
-      if (!it) return;
-      readInto(it);
-      it.published = true;
-      if (it.id) clearDeletedId(it.id);
-      function finish() {
-        saveRaw(list, "Publicado no app");
-        renderEditor();
-      }
-      // garante capa leve para ir pro GitHub/outros aparelhos
-      if (it.poster && it.poster.indexOf("data:image") === 0 && it.poster.length > 60000) {
-        try { toast("Otimizando capa…"); } catch (e) {}
-        compressDataUrl(it.poster, 360, 0.65).then(function (p) {
-          it.poster = p;
+      try {
+        var list = loadRaw();
+        var it = null;
+        for (var i = 0; i < list.length; i++) if (list[i].id === currentId) it = list[i];
+        if (!it) { toast("Selecione um filme na lista"); return; }
+        readInto(it);
+        it.published = true;
+        it.updatedAt = Date.now();
+        if (it.id) clearDeletedId(it.id);
+        function finish() {
+          try {
+            if (it.poster && it.id) rememberPoster(it.id, it.poster);
+            saveRaw(list, "Publicado no app");
+            renderAdminList();
+            renderEditor();
+            toast("Publicado");
+          } catch (e) {
+            try { toast("Erro ao publicar"); } catch (e2) {}
+          }
+        }
+        if (it.poster && it.poster.indexOf("data:image") === 0 && it.poster.length > 70000) {
+          compressDataUrl(it.poster, 320, 0.55).then(function (p) {
+            it.poster = p;
+            finish();
+          }).catch(function () { finish(); });
+        } else {
           finish();
-        }).catch(function () { finish(); });
-      } else {
-        finish();
+        }
+      } catch (e) {
+        try { toast("Erro ao publicar"); } catch (e2) {}
       }
     };
     $("btnDraft").onclick = function () {
@@ -5933,6 +6008,7 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
   window.addEventListener("online", onAppActive);
 
   // init (protegido — não trava na splash se algo falhar)
+  try { clearClickBlockers(); } catch (e) {}
   try { bootstrapCatalogFromEmbedded(); } catch (e) {}
   try { ensureDemo(); } catch (e) { catalog = attachPosters((EMBEDDED_CATALOG || []).slice()); memoryCatalog = catalog; }
   try { loadProfileUI(); } catch (e) {}
@@ -5948,8 +6024,42 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
     try { $("viewApp").classList.add("on"); $("adminApp").classList.remove("on"); } catch (e2) {}
   }
 
+
+  function clearClickBlockers() {
+    try {
+      document.body.classList.remove("drawer-open");
+      var ids = ["drawerBackdrop", "genreDrawer", "crownGate", "copyModal", "updateBanner", "splash"];
+      ids.forEach(function (id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove("open", "show", "hide");
+        if (id === "splash") {
+          el.style.display = "none";
+          el.style.pointerEvents = "none";
+          try { if (el.parentNode) el.parentNode.removeChild(el); } catch (e) {}
+        }
+        if (id === "drawerBackdrop") {
+          el.style.pointerEvents = "none";
+          el.style.opacity = "0";
+          el.style.visibility = "hidden";
+        }
+        if (id === "genreDrawer") {
+          el.classList.remove("open");
+          el.style.pointerEvents = "";
+        }
+      });
+      var nav = document.getElementById("bottomNav");
+      if (nav) nav.style.pointerEvents = "auto";
+      var view = document.getElementById("viewApp");
+      if (view) view.style.pointerEvents = "";
+      var toast = document.getElementById("toast");
+      if (toast) { toast.classList.remove("show"); toast.style.pointerEvents = "none"; }
+    } catch (e) {}
+  }
+
   function recoverAppUi() {
     try {
+      clearClickBlockers();
       var sp = document.getElementById("splash");
       if (sp) {
         try { sp.classList.add("hide"); sp.classList.add("gone"); sp.style.display = "none"; sp.style.pointerEvents = "none"; } catch (e) {}
