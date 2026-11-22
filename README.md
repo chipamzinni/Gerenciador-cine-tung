@@ -2163,7 +2163,7 @@ button, input, textarea, select { font-family: inherit; }
 
 /* ——— Viewer ——— */
 #viewApp { padding-bottom: 88px; display: none; }
-#viewApp.on { display: block; animation: fadeUp .45s var(--ease); }
+#viewApp.on { display: block !important; visibility: visible !important; animation: fadeUp .45s var(--ease); min-height: 100vh; }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: none; }
@@ -2728,13 +2728,273 @@ label.lbl {
   border-radius: 12px; padding: 12px; font-size: 11px; font-family: ui-monospace, monospace;
   -webkit-user-select: text; user-select: text;
 }
+
+/* OBLIRY intro — câmera entrando pelo O */
+.obliry-splash{
+  position:fixed; inset:0; z-index:2147483000;
+  background:#000;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+  transition: opacity .95s ease, visibility .95s ease;
+}
+.obliry-splash.hide{ opacity:0; visibility:hidden; pointer-events:none; }
+.obliry-splash.gone{ display:none !important; }
+.ob-stage{
+  position:relative; width:100%; height:100%;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  transform-origin: 18% 48%; /* aponta para o O */
+  will-change: transform;
+}
+.ob-word{
+  position:relative;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 800;
+  font-size: clamp(44px, 15vw, 96px);
+  letter-spacing: 0.22em;
+  color: #f3f3f3;
+  line-height: 1;
+  user-select: none;
+  transform: scale(0.78);
+  opacity: 0;
+  filter: blur(10px);
+}
+.ob-letter{ display:inline-block; opacity:0; transform: translateY(22px); }
+.ob-hole{
+  position:absolute;
+  left: 0;
+  top: 50%;
+  width: 0.78em; height: 0.78em;
+  margin-left: -0.02em;
+  transform: translateY(-50%) scale(0.12);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(circle at 50% 42%,
+      rgba(30,30,32,0.2) 0%,
+      rgba(0,0,0,0.65) 42%,
+      #000 100%);
+  box-shadow:
+    0 0 0 1px rgba(232,184,109,0.4),
+    0 0 28px 6px rgba(232,184,109,0.22),
+    inset 0 0 24px rgba(0,0,0,0.9);
+  will-change: transform, opacity;
+}
+.ob-credit{
+  margin-top: 32px;
+  font-size: 12.5px;
+  letter-spacing: 0.14em;
+  color: #9a9a9a;
+  opacity: 0;
+  transform: translateY(12px);
+  font-weight: 500;
+  text-transform: none;
+}
+.ob-vignette{
+  position:absolute; inset:0; pointer-events:none;
+  background: radial-gradient(ellipse at 18% 48%, transparent 20%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.92) 100%);
+  opacity: 1;
+  transition: opacity 1.4s ease;
+}
+.obliry-splash.phase-in .ob-word{
+  opacity: 1; filter: blur(0); transform: scale(1);
+  transition: opacity 1.25s ease, filter 1.35s ease, transform 1.55s cubic-bezier(.2,.75,.2,1);
+}
+.obliry-splash.phase-in .ob-letter{
+  opacity: 1; transform: translateY(0);
+  transition: opacity .75s ease, transform .9s cubic-bezier(.2,.75,.2,1);
+}
+.obliry-splash.phase-in .ob-letter:nth-child(1){ transition-delay: .18s; }
+.obliry-splash.phase-in .ob-letter:nth-child(2){ transition-delay: .32s; }
+.obliry-splash.phase-in .ob-letter:nth-child(3){ transition-delay: .46s; }
+.obliry-splash.phase-in .ob-letter:nth-child(4){ transition-delay: .60s; }
+.obliry-splash.phase-in .ob-letter:nth-child(5){ transition-delay: .74s; }
+.obliry-splash.phase-in .ob-letter:nth-child(6){ transition-delay: .88s; }
+.obliry-splash.phase-in .ob-credit{
+  opacity: 1; transform: translateY(0);
+  transition: opacity 1.1s ease 1.05s, transform 1.1s ease 1.05s;
+}
+.obliry-splash.phase-hole .ob-hole{
+  opacity: 1;
+  transform: translateY(-50%) scale(0.95);
+  transition: opacity .9s ease, transform 1.6s cubic-bezier(.15,.7,.1,1);
+}
+.obliry-splash.phase-dive .ob-stage{
+  animation: obDive 2.85s cubic-bezier(.1,.55,.1,1) forwards;
+}
+.obliry-splash.phase-dive .ob-hole{
+  transform: translateY(-50%) scale(22);
+  opacity: 1;
+  transition: transform 2.85s cubic-bezier(.1,.55,.1,1), opacity 1.4s ease 1.3s;
+}
+.obliry-splash.phase-dive .ob-letter{
+  opacity: 0;
+  transition: opacity 1s ease .25s;
+}
+.obliry-splash.phase-dive .ob-credit{
+  opacity: 0;
+  transition: opacity .8s ease;
+}
+.obliry-splash.phase-dive .ob-vignette{
+  opacity: 0;
+  transition: opacity 1.6s ease .35s;
+}
+@keyframes obDive{
+  0%   { transform: scale(1) translate(0,0); }
+  35%  { transform: scale(1.45) translate(-6%, 1%); }
+  100% { transform: scale(3.2) translate(-14%, 2%); }
+}
+
 </style>
 </head>
 <body style="background-color: rgb(0, 0, 0);">
 
+<!-- OBLIRY INTRO -->
+<style id="obliryIntroCss">
+#splash.obliry-splash{
+  position:fixed!important; inset:0!important; z-index:2147483646!important;
+  background:#000!important; margin:0!important; padding:0!important;
+  display:flex!important; align-items:center!important; justify-content:center!important;
+  overflow:hidden!important;
+  transition:opacity .9s ease, visibility .9s ease;
+}
+#splash.obliry-splash.hide{ opacity:0!important; visibility:hidden!important; pointer-events:none!important; }
+#splash.obliry-splash.gone{ display:none!important; }
+#splash .ob-stage{
+  position:relative; width:100%; height:100%;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  transform-origin: 16% 50%;
+  will-change: transform;
+}
+#splash .ob-word{
+  position:relative;
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  font-weight:800;
+  font-size: clamp(48px, 16vw, 100px);
+  letter-spacing: 0.2em;
+  color:#f5f5f5;
+  line-height:1;
+  opacity:0;
+  transform: scale(0.85);
+  filter: blur(12px);
+}
+#splash .ob-letter{
+  display:inline-block;
+  opacity:0;
+  transform: translateY(24px);
+}
+#splash .ob-hole{
+  position:absolute;
+  left:0; top:50%;
+  width:0.82em; height:0.82em;
+  margin-left:-0.04em;
+  transform: translateY(-50%) scale(0.08);
+  border-radius:50%;
+  opacity:0;
+  pointer-events:none;
+  background: radial-gradient(circle at 50% 40%, rgba(40,40,42,.25) 0%, rgba(0,0,0,.7) 40%, #000 100%);
+  box-shadow: 0 0 0 2px rgba(232,184,109,.45), 0 0 30px 8px rgba(232,184,109,.2), inset 0 0 30px #000;
+}
+#splash .ob-credit{
+  margin-top:36px;
+  font-size:13px;
+  letter-spacing:0.16em;
+  color:#a0a0a0;
+  opacity:0;
+  transform: translateY(14px);
+  font-weight:500;
+}
+#splash .ob-vignette{
+  position:absolute; inset:0; pointer-events:none;
+  background: radial-gradient(ellipse at 16% 50%, transparent 18%, rgba(0,0,0,.5) 50%, rgba(0,0,0,.95) 100%);
+}
+/* phases */
+#splash.phase-in .ob-word{
+  opacity:1; filter:blur(0); transform:scale(1);
+  transition: opacity 1.3s ease, filter 1.4s ease, transform 1.6s cubic-bezier(.2,.75,.2,1);
+}
+#splash.phase-in .ob-letter{
+  opacity:1; transform:translateY(0);
+  transition: opacity .8s ease, transform .95s cubic-bezier(.2,.75,.2,1);
+}
+#splash.phase-in .ob-letter:nth-child(1){ transition-delay:.2s; }
+#splash.phase-in .ob-letter:nth-child(2){ transition-delay:.35s; }
+#splash.phase-in .ob-letter:nth-child(3){ transition-delay:.5s; }
+#splash.phase-in .ob-letter:nth-child(4){ transition-delay:.65s; }
+#splash.phase-in .ob-letter:nth-child(5){ transition-delay:.8s; }
+#splash.phase-in .ob-letter:nth-child(6){ transition-delay:.95s; }
+#splash.phase-in .ob-credit{
+  opacity:1; transform:translateY(0);
+  transition: opacity 1.2s ease 1.15s, transform 1.2s ease 1.15s;
+}
+#splash.phase-hole .ob-hole{
+  opacity:1;
+  transform: translateY(-50%) scale(1);
+  transition: opacity 1s ease, transform 1.7s cubic-bezier(.15,.7,.1,1);
+}
+#splash.phase-dive .ob-stage{
+  animation: obCamDive 3s cubic-bezier(.1,.55,.1,1) forwards;
+}
+#splash.phase-dive .ob-hole{
+  transform: translateY(-50%) scale(24);
+  transition: transform 3s cubic-bezier(.1,.55,.1,1), opacity 1.5s ease 1.4s;
+}
+#splash.phase-dive .ob-letter{ opacity:0; transition: opacity 1.1s ease .3s; }
+#splash.phase-dive .ob-credit{ opacity:0; transition: opacity .9s ease; }
+#splash.phase-dive .ob-vignette{ opacity:0; transition: opacity 1.7s ease .4s; }
+@keyframes obCamDive{
+  0%{ transform: scale(1) translate(0,0); }
+  30%{ transform: scale(1.5) translate(-5%,0); }
+  100%{ transform: scale(3.4) translate(-12%,1%); }
+}
+</style>
+<div id="splash" class="obliry-splash">
+  <div class="ob-stage">
+    <div class="ob-word">
+      <span class="ob-letter">O</span><span class="ob-letter">B</span><span class="ob-letter">L</span><span class="ob-letter">I</span><span class="ob-letter">R</span><span class="ob-letter">Y</span>
+      <div class="ob-hole"></div>
+    </div>
+    <div class="ob-credit">Feito por Raphael Rocha</div>
+  </div>
+  <div class="ob-vignette"></div>
+</div>
+<script>
+(function () {
+  var splash = document.getElementById("splash");
+  if (!splash) return;
+  var done = false;
+  function finish() {
+    if (done) return;
+    done = true;
+    try { splash.classList.add("hide"); } catch (e) {}
+    setTimeout(function () {
+      try {
+        splash.classList.add("gone");
+        if (splash.parentNode) splash.parentNode.removeChild(splash);
+      } catch (e) {}
+    }, 950);
+  }
+  // timeline
+  setTimeout(function () { try { splash.classList.add("phase-in"); } catch (e) {} }, 200);
+  setTimeout(function () { try { splash.classList.add("phase-hole"); } catch (e) {} }, 2000);
+  setTimeout(function () { try { splash.classList.add("phase-dive"); } catch (e) {} }, 3200);
+  setTimeout(finish, 6200);
+  // toque para pular
+  function skip() {
+    try { splash.classList.add("phase-dive"); } catch (e) {}
+    setTimeout(finish, 1100);
+  }
+  splash.addEventListener("click", skip);
+  splash.addEventListener("touchend", skip);
+  // expõe para o app principal se quiser
+  window.__obliryEndSplash = finish;
+})();
+</script>
+
+
 
 <!-- ========== VIEWER ========== -->
-<div id="viewApp" class="">
+<div id="viewApp" class="on">
   <div class="top">
     <div class="top-row">
       <div class="brand">Cine <span>Tung</span></div>
@@ -3586,33 +3846,21 @@ label.lbl {
   }
   function publishedList() { return loadRaw().filter(isReleased); }
 
-  /* splash */
+  /* splash: controlada pelo script isolado no body */
   function endSplash() {
-    var splash = $("splash");
+    try { if (window.__obliryEndSplash) window.__obliryEndSplash(); } catch (e) {}
+    var splash = document.getElementById("splash");
     if (!splash) return;
     splash.classList.add("hide");
-    setTimeout(function () { if (splash.parentNode) splash.parentNode.removeChild(splash); }, 500);
+    setTimeout(function () {
+      try { splash.classList.add("gone"); if (splash.parentNode) splash.parentNode.removeChild(splash); } catch (e) {}
+    }, 900);
   }
   function runSplash() {
-    var splash = $("splash");
-    var logo = $("splashLogo");
-    var credit = $("splashCredit");
-    if (!splash) return;
-    splash.addEventListener("click", endSplash);
-    var word = "OBLIRY", i = 0;
-    setTimeout(function type() {
-      if (!$("splash")) return;
-      if (i <= word.length) {
-        if (logo) logo.textContent = word.slice(0, i);
-        i++;
-        setTimeout(type, 130);
-      } else {
-        if (credit) credit.classList.add("show");
-        setTimeout(endSplash, 1600);
-      }
-    }, 700);
-    setTimeout(endSplash, 3200);
+    /* intro já inicia sozinha no script do body */
   }
+
+
 
   /* mode */
   function showViewer() {
@@ -5394,15 +5642,15 @@ label.lbl {
   try { loadProfileUI(); } catch (e) {}
   try { setTab("lib"); } catch (e) {}
   try { renderGrid(); } catch (e) {}
+  // sempre mostra o viewer (evita tela preta)
+  try {
+    if ($("adminApp")) $("adminApp").classList.remove("on");
+    if ($("viewApp")) $("viewApp").classList.add("on");
+    localStorage.setItem("cinetung_ui", "viewer");
+  } catch (e) {}
   try { showViewer(); } catch (e) {
     try { $("viewApp").classList.add("on"); $("adminApp").classList.remove("on"); } catch (e2) {}
   }
-  // nunca inicia no modo criador (HTML exportado às vezes vem com admin ligado)
-  try {
-    $("adminApp").classList.remove("on");
-    $("viewApp").classList.add("on");
-    localStorage.setItem("cinetung_ui", "viewer");
-  } catch (e) {}
   // ao voltar de site externo, garante viewer
   try {
     window.addEventListener("pageshow", function () {
@@ -5418,7 +5666,8 @@ label.lbl {
     try { endSplash(); } catch (e2) {}
   }
   // segurança: tira splash no máximo em 4s
-  setTimeout(function () { try { endSplash(); } catch (e) {} }, 4000);
+  setTimeout(function () { try { endSplash(); } catch (e) {} }, 9000);
+  /* splash controlada por runSplash */
   // Sync automático com GitHub (HTML completo ou catalog.json)
   try {
     setTimeout(function () {
