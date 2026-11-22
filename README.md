@@ -2850,9 +2850,22 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
   100% { transform: scale(3.2) translate(-14%, 2%); }
 }
 
+
+#appBg {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none !important;
+  background-color: #0a0a0b;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+/* conteúdo acima do fundo; NÃO altera position dos fixed */
+#viewApp, #adminApp { position: relative; z-index: 1; }
+
 </style>
 </head>
-<body style="background-color: rgb(0, 0, 0);">
+<body style="background-color:#0a0a0b;">
+<div id="appBg" aria-hidden="true"></div>
 
 <!-- OBLIRY INTRO -->
 <style id="obliryIntroCss">
@@ -3610,6 +3623,62 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
       return it;
     });
   }
+
+  function bootstrapCatalogFromEmbedded() {
+    try {
+      hydratePostersFromEmbedded();
+      var emb = (typeof EMBEDDED_CATALOG !== "undefined" && EMBEDDED_CATALOG) ? EMBEDDED_CATALOG : [];
+      if (!emb || !emb.length) return;
+      var local = [];
+      try { local = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch (e) { local = []; }
+      if (!Array.isArray(local)) local = [];
+      var map = {};
+      local.forEach(function (it) { if (it && it.id) map[it.id] = it; });
+      var changed = false;
+      emb.forEach(function (it) {
+        if (!it || !it.id) return;
+        if (!map[it.id]) {
+          map[it.id] = it;
+          changed = true;
+        } else {
+          // preenche capa/url se local estiver vazio e remoto tiver
+          var L = map[it.id];
+          if ((!L.poster || !String(L.poster).trim()) && it.poster) {
+            L.poster = it.poster;
+            changed = true;
+          }
+          if ((!L.url || !String(L.url).trim()) && it.url) {
+            L.url = it.url;
+            changed = true;
+          }
+        }
+        if (it.poster && it.id) rememberPoster(it.id, it.poster);
+      });
+      if (changed) {
+        var out = Object.keys(map).map(function (k) { return map[k]; });
+        try {
+          localStorage.setItem(KEY, JSON.stringify(out));
+          memoryCatalog = out;
+        } catch (e) {
+          // se estourar, grava sem posters base64 enormes
+          try {
+            var lite = out.map(function (it) {
+              var o = {};
+              for (var k in it) if (Object.prototype.hasOwnProperty.call(it, k)) o[k] = it[k];
+              if (o.poster && String(o.poster).indexOf("data:") === 0 && String(o.poster).length > 80000) {
+                rememberPoster(o.id, o.poster);
+                o.poster = "";
+              }
+              return o;
+            });
+            localStorage.setItem(KEY, JSON.stringify(lite));
+            memoryCatalog = attachPosters(lite);
+          } catch (e2) {}
+        }
+      }
+    } catch (e) {}
+  }
+
   function hydratePostersFromEmbedded() {
     try {
       var emb = (typeof EMBEDDED_CATALOG !== "undefined" && EMBEDDED_CATALOG) ? EMBEDDED_CATALOG : [];
@@ -4146,54 +4215,95 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
   }
   function clearBgImage() {
     try {
+      var bg = document.getElementById("appBg");
+      if (bg) {
+        bg.style.backgroundImage = "";
+        bg.style.backgroundColor = "#0a0a0b";
+      }
       document.body.style.backgroundImage = "";
-      document.body.style.backgroundSize = "";
-      document.body.style.backgroundPosition = "";
-      document.body.style.backgroundAttachment = "";
-      document.body.style.backgroundRepeat = "";
       localStorage.removeItem(BG_IMAGE_KEY);
     } catch (e) {}
+  }
+  function paintBg(dataUrl) {
+    var bg = document.getElementById("appBg");
+    if (!bg) return;
+    if (!dataUrl) {
+      bg.style.backgroundImage = "";
+      bg.style.backgroundColor = "#0a0a0b";
+      return;
+    }
+    var safe = String(dataUrl).replace(/'/g, "%27").replace(/\n/g, "");
+    // vinheta + imagem (só visual; layer não captura clique)
+    bg.style.backgroundColor = "#0a0a0b";
+    bg.style.backgroundImage =
+      "linear-gradient(180deg, rgba(8,8,10,.75) 0%, rgba(8,8,10,.5) 45%, rgba(8,8,10,.85) 100%), url('" + safe + "')";
+    bg.style.backgroundSize = "cover, cover";
+    bg.style.backgroundPosition = "center, center";
+    bg.style.backgroundRepeat = "no-repeat, no-repeat";
+    bg.style.pointerEvents = "none";
   }
   function applyBgColor(hex) {
     if (!hex) hex = "#0a0a0b";
     try {
       document.documentElement.style.setProperty("--bg", hex);
       document.body.style.backgroundColor = hex;
+      var bg = document.getElementById("appBg");
+      if (bg) bg.style.backgroundColor = hex;
       localStorage.setItem(THEME_KEY, hex);
     } catch (e) {}
   }
-  function applyBgImage(dataUrl) {
-    if (!dataUrl) return;
-    try {
-      // fundo profissional: imagem cobrindo a tela + vinheta escura por cima (legibilidade)
-      var safe = String(dataUrl).replace(/'/g, "%27").replace(/\n/g, "");
-      document.body.style.backgroundColor = "#0a0a0b";
-      document.body.style.backgroundImage =
-        "linear-gradient(180deg, rgba(8,8,10,.72) 0%, rgba(8,8,10,.55) 40%, rgba(8,8,10,.82) 100%), url('" + safe + "')";
-      document.body.style.backgroundSize = "cover, cover";
-      document.body.style.backgroundPosition = "center, center";
-      document.body.style.backgroundRepeat = "no-repeat, no-repeat";
-      document.body.style.backgroundAttachment = "fixed, fixed";
+  function persistBgImage(dataUrl) {
+    // grava sempre a versão pequena o bastante pro localStorage
+    function trySave(str) {
       try {
-        localStorage.setItem(BG_IMAGE_KEY, dataUrl);
-      } catch (e) {
-        // tenta versão ainda menor
+        localStorage.setItem(BG_IMAGE_KEY, str);
+        return true;
+      } catch (e) { return false; }
+    }
+    if (trySave(dataUrl)) return Promise.resolve(true);
+    // comprime em degraus até caber
+    var steps = [[640, 0.45], [480, 0.38], [360, 0.32], [280, 0.28], [220, 0.24]];
+    return steps.reduce(function (chain, step) {
+      return chain.then(function (ok) {
+        if (ok) return true;
+        return compressDataUrl(dataUrl, step[0], step[1]).then(function (small) {
+          if (trySave(small)) {
+            paintBg(small);
+            return true;
+          }
+          return false;
+        });
+      });
+    }, Promise.resolve(false)).then(function (ok) {
+      if (!ok) {
         try {
-          compressDataUrl(dataUrl, 480, 0.4).then(function (small) {
-            try { localStorage.setItem(BG_IMAGE_KEY, small); } catch (e2) {
-              try { toast("Sem espaço para salvar o fundo"); } catch (e3) {}
-            }
+          // último recurso: apaga capas antigas enormes do mapa de posters pra liberar espaço
+          try { localStorage.removeItem("cinetung_posters_v1"); } catch (e) {}
+          if (trySave(dataUrl)) return true;
+          return compressDataUrl(dataUrl, 200, 0.22).then(function (tiny) {
+            if (trySave(tiny)) { paintBg(tiny); return true; }
+            try { toast("Sem espaço no aparelho para o fundo"); } catch (e) {}
+            return false;
           });
-        } catch (e2) {
-          try { toast("Sem espaço para salvar o fundo"); } catch (e3) {}
+        } catch (e) {
+          try { toast("Sem espaço no aparelho para o fundo"); } catch (e2) {}
+          return false;
         }
       }
-    } catch (e) {}
+      return ok;
+    });
+  }
+  function applyBgImage(dataUrl) {
+    if (!dataUrl) return;
+    paintBg(dataUrl);
+    persistBgImage(dataUrl).then(function (ok) {
+      if (ok) { try { toast("Fundo salvo neste aparelho"); } catch (e) {} }
+    });
   }
   function loadTheme() {
     try {
       var img = localStorage.getItem(BG_IMAGE_KEY);
-      if (img) { applyBgImage(img); return; }
+      if (img) { paintBg(img); return; }
       var c = localStorage.getItem(THEME_KEY);
       if (c) applyBgColor(c);
     } catch (e) {}
@@ -4215,12 +4325,16 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
     $("bgImagePicker").onchange = function () {
       var f = this.files && this.files[0];
       if (!f) return;
-      compressImageFile(f, 720, 0.55).then(function (dataUrl) {
+      // comprime forte antes de aplicar (fundo precisa caber no localStorage)
+      compressImageFile(f, 480, 0.4).then(function (dataUrl) {
         applyBgImage(dataUrl);
-        toast("Fundo aplicado");
       }).catch(function () {
         var r = new FileReader();
-        r.onload = function () { applyBgImage(String(r.result || "")); toast("Fundo aplicado"); };
+        r.onload = function () {
+          compressDataUrl(String(r.result || ""), 480, 0.4).then(function (d) {
+            applyBgImage(d);
+          });
+        };
         r.readAsDataURL(f);
       });
     };
@@ -5819,7 +5933,7 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
   window.addEventListener("online", onAppActive);
 
   // init (protegido — não trava na splash se algo falhar)
-  try { hydratePostersFromEmbedded(); } catch (e) {}
+  try { bootstrapCatalogFromEmbedded(); } catch (e) {}
   try { ensureDemo(); } catch (e) { catalog = attachPosters((EMBEDDED_CATALOG || []).slice()); memoryCatalog = catalog; }
   try { loadProfileUI(); } catch (e) {}
   try { setTab("lib"); } catch (e) {}
@@ -5853,7 +5967,7 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
           view.style.opacity = "1";
         }
       }
-      // restaura fundo (nunca força #000)
+      try { closeDrawer(); } catch (e) {}
       try { loadTheme(); } catch (e) {}
       try { if ($("viewApp") && $("viewApp").classList.contains("on")) renderGrid(); } catch (e) {}
     } catch (e) {}
