@@ -2638,14 +2638,14 @@ label.lbl {
   display: flex; align-items: center; justify-content: center;
 }
 .drawer-backdrop {
-  position: fixed; inset: 0; z-index: 80;
+  position: fixed; inset: 0; z-index: 220;
   background: rgba(0,0,0,.55);
   opacity: 0; visibility: hidden; pointer-events: none;
   transition: opacity .3s var(--ease), visibility .3s;
 }
 .drawer-backdrop.open { opacity: 1; visibility: visible; pointer-events: auto; }
 .genre-drawer {
-  position: fixed; top: 0; left: 0; bottom: 0; z-index: 90;
+  position: fixed; top: 0; left: 0; bottom: 0; z-index: 230;
   width: min(300px, 86vw);
   background: var(--panel);
   border-right: 1px solid var(--line);
@@ -2656,6 +2656,10 @@ label.lbl {
   pointer-events: none;
 }
 .genre-drawer.open { transform: translateX(0); pointer-events: auto; }
+body.drawer-open .bottom-nav { pointer-events: none !important; opacity: .4; }
+body.drawer-open #viewApp { pointer-events: none; }
+body.drawer-open .genre-drawer,
+body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
 .drawer-head {
   display: flex; align-items: center; justify-content: space-between;
   padding: 16px 14px; border-bottom: 1px solid var(--line);
@@ -2674,6 +2678,7 @@ label.lbl {
 }
 .drawer-item.active { font-weight: 700; }
 .drawer-foot {
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
   border-top: 1px solid var(--line);
   padding: 10px 0 calc(12px + env(safe-area-inset-bottom));
 }
@@ -3080,13 +3085,13 @@ label.lbl {
     <button type="button" class="drawer-item" id="btnDrawerHome"><span class="dot"></span> Início (Biblioteca)</button>
     <button type="button" class="drawer-item" id="btnDrawerSettings"><span>⚙️</span> Configurações</button>
     <div class="drawer-settings hidden" id="drawerSettingsPanel">
-      <label class="lbl">Cor de fundo do app</label>
-      <input type="color" id="bgColorPicker" value="#0a0a0b" style="width:100%;height:42px;border:0;border-radius:10px;background:transparent;cursor:pointer">
-      <button class="btn small secondary block" type="button" id="btnResetBg" style="margin-top:8px">Cor padrão</button>
+      <label class="lbl">Fundo do app</label>
+      <input type="file" id="bgImagePicker" accept="image/*" style="width:100%;font-size:12px;color:var(--muted)">
+      <button class="btn small secondary block" type="button" id="btnResetBg" style="margin-top:8px">Fundo padrão</button>
       <div class="drawer-credits">
         <b>Créditos</b><br>
         Raphael Rocha<br>
-        Empresa: Obliry
+        Obliry
       </div>
     </div>
   </div>
@@ -4089,16 +4094,35 @@ label.lbl {
 
   /* ——— gaveta de gêneros + configurações ——— */
   function openDrawer() {
-    if ($("genreDrawer")) $("genreDrawer").classList.add("open");
-    if ($("drawerBackdrop")) $("drawerBackdrop").classList.add("open");
-    if ($("genreDrawer")) $("genreDrawer").setAttribute("aria-hidden", "false");
+    try { document.body.classList.add("drawer-open"); } catch (e) {}
+    if ($("genreDrawer")) {
+      $("genreDrawer").classList.add("open");
+      $("genreDrawer").style.pointerEvents = "auto";
+      $("genreDrawer").setAttribute("aria-hidden", "false");
+    }
+    if ($("drawerBackdrop")) {
+      $("drawerBackdrop").classList.add("open");
+      $("drawerBackdrop").style.pointerEvents = "auto";
+    }
     renderDrawerGenres();
   }
   function closeDrawer() {
-    if ($("genreDrawer")) $("genreDrawer").classList.remove("open");
-    if ($("drawerBackdrop")) $("drawerBackdrop").classList.remove("open");
-    if ($("genreDrawer")) $("genreDrawer").setAttribute("aria-hidden", "true");
+    try { document.body.classList.remove("drawer-open"); } catch (e) {}
+    if ($("genreDrawer")) {
+      $("genreDrawer").classList.remove("open");
+      $("genreDrawer").style.pointerEvents = "";
+      $("genreDrawer").setAttribute("aria-hidden", "true");
+    }
+    if ($("drawerBackdrop")) {
+      $("drawerBackdrop").classList.remove("open");
+      $("drawerBackdrop").style.pointerEvents = "none";
+    }
     if ($("drawerSettingsPanel")) $("drawerSettingsPanel").classList.add("hidden");
+    try {
+      var nav = $("bottomNav");
+      if (nav) nav.style.pointerEvents = "auto";
+      if ($("viewApp")) $("viewApp").style.pointerEvents = "";
+    } catch (e) {}
   }
   function renderDrawerGenres() {
     var box = $("drawerGenreList");
@@ -4118,17 +4142,41 @@ label.lbl {
       box.appendChild(b);
     });
   }
+  function clearBgImage() {
+    try {
+      document.body.style.backgroundImage = "";
+      document.documentElement.style.backgroundImage = "";
+      localStorage.removeItem(BG_IMAGE_KEY);
+    } catch (e) {}
+  }
   function applyBgColor(hex) {
     if (!hex) hex = "#0a0a0b";
     try {
       document.documentElement.style.setProperty("--bg", hex);
       document.body.style.backgroundColor = hex;
       localStorage.setItem(THEME_KEY, hex);
-      if ($("bgColorPicker")) $("bgColorPicker").value = hex;
     } catch (e) {}
+  }
+  function applyBgImage(dataUrl) {
+    if (!dataUrl) return;
+    try {
+      document.body.style.backgroundImage = "url('" + dataUrl.replace(/'/g, "%27") + "')";
+      document.body.style.backgroundSize = "cover";
+      document.body.style.backgroundPosition = "center";
+      document.body.style.backgroundAttachment = "fixed";
+      document.body.style.backgroundColor = "#0a0a0b";
+      localStorage.setItem(BG_IMAGE_KEY, dataUrl);
+    } catch (e) {
+      try {
+        // se base64 grande estourar quota, avisa
+        toast("Imagem grande demais para salvar");
+      } catch (e2) {}
+    }
   }
   function loadTheme() {
     try {
+      var img = localStorage.getItem(BG_IMAGE_KEY);
+      if (img) { applyBgImage(img); return; }
       var c = localStorage.getItem(THEME_KEY);
       if (c) applyBgColor(c);
     } catch (e) {}
@@ -4146,13 +4194,25 @@ label.lbl {
     if (!p) return;
     p.classList.toggle("hidden");
   };
-  if ($("bgColorPicker")) {
-    $("bgColorPicker").oninput = function () { applyBgColor($("bgColorPicker").value); };
+  if ($("bgImagePicker")) {
+    $("bgImagePicker").onchange = function () {
+      var f = this.files && this.files[0];
+      if (!f) return;
+      compressImageFile(f, 720, 0.55).then(function (dataUrl) {
+        applyBgImage(dataUrl);
+        toast("Fundo aplicado");
+      }).catch(function () {
+        var r = new FileReader();
+        r.onload = function () { applyBgImage(String(r.result || "")); toast("Fundo aplicado"); };
+        r.readAsDataURL(f);
+      });
+    };
   }
   if ($("btnResetBg")) {
     $("btnResetBg").onclick = function () {
+      clearBgImage();
       applyBgColor("#0a0a0b");
-      toast("Cor padrão");
+      toast("Fundo padrão");
     };
   }
   try { loadTheme(); } catch (e) {}
@@ -4439,19 +4499,22 @@ label.lbl {
     setNativeControlsVisible(false);
     stage.innerHTML = "";
     var box = document.createElement("div");
-    box.style.cssText = "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:#0a0a0b";
-    var safe = String(url || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+    box.style.cssText = "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:28px;background:#0a0a0b";
     box.innerHTML =
-      '<div style="max-width:360px;width:100%;background:#121214;border:1px solid #2a2a2e;border-radius:16px;padding:22px;text-align:center">' +
-      '<div style="font-size:15px;font-weight:600;margin-bottom:8px;color:#f4f4f5">Abrir no navegador</div>' +
-      '<div style="font-size:13px;color:#a1a1aa;line-height:1.45;margin-bottom:16px">' +
-      (reason ? String(reason) : "Este link precisa abrir fora do app.") +
-      '</div>' +
-      '<button type="button" id="btnExtOpen" style="width:100%;border:0;border-radius:12px;padding:14px 16px;background:#e8b86d;color:#111;font-weight:700;font-size:15px;cursor:pointer">Abrir agora</button>' +
-      '<div style="margin-top:12px;font-size:11px;color:#52525b;word-break:break-all">' + safe + '</div></div>';
+      '<div style="max-width:280px;width:100%;text-align:center">' +
+      '<p style="margin:0 0 8px;font-size:16px;font-weight:600;color:#f0f0f0">Assistir fora do app</p>' +
+      '<p style="margin:0 0 22px;font-size:13px;color:#888;line-height:1.45">Este site não permite o player aqui dentro.</p>' +
+      '<button type="button" id="btnExtOpen" style="width:100%;border:0;border-radius:10px;padding:13px 16px;background:#e8b86d;color:#111;font-weight:700;font-size:14px">Abrir link</button>' +
+      '<button type="button" id="btnExtClose" style="width:100%;margin-top:10px;border:0;border-radius:10px;padding:11px;background:transparent;color:#777;font-size:13px">Voltar</button>' +
+      '</div>';
     stage.appendChild(box);
-    var b = box.querySelector("#btnExtOpen");
+    var b = document.getElementById("btnExtOpen");
     if (b) b.onclick = function () { openExternalUrl(url); };
+    var c = document.getElementById("btnExtClose");
+    if (c) c.onclick = function () {
+      try { $("overlay").classList.remove("open"); } catch (e) {}
+      try { stage.innerHTML = ""; } catch (e) {}
+    };
   }
 
   function createIframe(src) {
