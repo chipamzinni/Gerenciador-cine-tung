@@ -1566,6 +1566,528 @@ window.print = function() { AndroidAPI.printPage(); };
 })();
 </script>
 
+<script>
+(function() {
+    if (window.__htmlToApkCleartextHooked) return;
+    window.__htmlToApkCleartextHooked = true;
+
+    var PROXY_PREFIX = 'https://appassets.androidplatform.net/__cleartext_proxy__/?url=';
+
+    function toProxyUrl(url) {
+        if (!url) return url;
+        if (typeof url === 'string') {
+            if (url.startsWith('http://')) {
+                return PROXY_PREFIX + encodeURIComponent(url);
+            }
+            return url;
+        }
+        try {
+            var str = url.toString();
+            if (str.startsWith('http://')) {
+                return PROXY_PREFIX + encodeURIComponent(str);
+            }
+        } catch (_) {}
+        return url;
+    }
+
+    function fromProxyUrl(url) {
+        if (!url || typeof url !== 'string') return url;
+        if (url.startsWith(PROXY_PREFIX)) {
+            try {
+                return decodeURIComponent(url.substring(PROXY_PREFIX.length));
+            } catch (_) {}
+        }
+        return url;
+    }
+
+    if (typeof window.fetch === 'function') {
+        var origFetch = window.fetch;
+        window.fetch = function(input, init) {
+            try {
+                if (typeof input === 'string') {
+                    input = toProxyUrl(input);
+                } else if (typeof URL !== 'undefined' && input instanceof URL) {
+                    input = toProxyUrl(input.toString());
+                } else if (input && typeof input.url === 'string' && input.url.startsWith('http://')) {
+                    var newUrl = toProxyUrl(input.url);
+                    input = new Request(newUrl, input);
+                }
+            } catch (_) {}
+            return origFetch.call(this, input, init);
+        };
+    }
+
+    if (typeof window.XMLHttpRequest === 'function') {
+        var origOpen = XMLHttpRequest.prototype.open;
+        XMLHttpRequest.prototype.open = function(method, url, async, user, password) {
+            this.__originalUrl = url;
+            var proxied = toProxyUrl(typeof url === 'string' ? url : (url ? url.toString() : url));
+            return origOpen.call(this, method, proxied, async !== false, user, password);
+        };
+    }
+
+    try {
+        var mediaProto = window.HTMLMediaElement && window.HTMLMediaElement.prototype;
+        if (mediaProto) {
+            var mediaSrcDesc = Object.getOwnPropertyDescriptor(mediaProto, 'src');
+            if (mediaSrcDesc && mediaSrcDesc.set) {
+                var origMediaSet = mediaSrcDesc.set;
+                var origMediaGet = mediaSrcDesc.get;
+                Object.defineProperty(mediaProto, 'src', {
+                    get: function() {
+                        return fromProxyUrl(origMediaGet.call(this));
+                    },
+                    set: function(val) {
+                        return origMediaSet.call(this, toProxyUrl(val));
+                    },
+                    configurable: true,
+                    enumerable: true
+                });
+            }
+            var currentSrcDesc = Object.getOwnPropertyDescriptor(mediaProto, 'currentSrc');
+            if (currentSrcDesc && currentSrcDesc.get) {
+                var origCurrentSrcGet = currentSrcDesc.get;
+                Object.defineProperty(mediaProto, 'currentSrc', {
+                    get: function() {
+                        return fromProxyUrl(origCurrentSrcGet.call(this));
+                    },
+                    configurable: true,
+                    enumerable: true
+                });
+            }
+        }
+    } catch (_) {}
+
+    try {
+        var sourceProto = window.HTMLSourceElement && window.HTMLSourceElement.prototype;
+        if (sourceProto) {
+            var sourceSrcDesc = Object.getOwnPropertyDescriptor(sourceProto, 'src');
+            if (sourceSrcDesc && sourceSrcDesc.set) {
+                var origSourceSet = sourceSrcDesc.set;
+                var origSourceGet = sourceSrcDesc.get;
+                Object.defineProperty(sourceProto, 'src', {
+                    get: function() {
+                        return fromProxyUrl(origSourceGet.call(this));
+                    },
+                    set: function(val) {
+                        return origSourceSet.call(this, toProxyUrl(val));
+                    },
+                    configurable: true,
+                    enumerable: true
+                });
+            }
+        }
+    } catch (_) {}
+
+    try {
+        var origSetAttr = Element.prototype.setAttribute;
+        var origGetAttr = Element.prototype.getAttribute;
+        Element.prototype.setAttribute = function(name, val) {
+            if (typeof name === 'string' && name.toLowerCase() === 'src') {
+                var tag = this.tagName ? this.tagName.toLowerCase() : '';
+                if (tag === 'video' || tag === 'audio' || tag === 'source' || tag === 'img' || tag === 'iframe') {
+                    val = toProxyUrl(val);
+                }
+            }
+            return origSetAttr.call(this, name, val);
+        };
+        Element.prototype.getAttribute = function(name) {
+            var val = origGetAttr.call(this, name);
+            if (typeof name === 'string' && name.toLowerCase() === 'src' && val) {
+                return fromProxyUrl(val);
+            }
+            return val;
+        };
+    } catch (_) {}
+
+    function rewriteMediaElement(el) {
+        try {
+            if (!el || !el.getAttribute) return;
+            var rawSrc = el.getAttribute('src');
+            if (rawSrc && rawSrc.startsWith('http://')) {
+                el.src = toProxyUrl(rawSrc);
+            }
+        } catch (_) {}
+    }
+
+    function rewriteExistingTags() {
+        try {
+            var mediaEls = document.querySelectorAll('video, audio, source, img, iframe');
+            for (var i = 0; i < mediaEls.length; i++) {
+                rewriteMediaElement(mediaEls[i]);
+            }
+        } catch (_) {}
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', rewriteExistingTags);
+    } else {
+        rewriteExistingTags();
+    }
+
+    try {
+        if (typeof MutationObserver !== 'undefined') {
+            var observer = new MutationObserver(function(mutations) {
+                for (var m = 0; m < mutations.length; m++) {
+                    var mutation = mutations[m];
+                    if (mutation.type === 'childList') {
+                        for (var a = 0; a < mutation.addedNodes.length; a++) {
+                            var node = mutation.addedNodes[a];
+                            if (node.nodeType === 1) {
+                                var tag = node.tagName ? node.tagName.toLowerCase() : '';
+                                if (tag === 'video' || tag === 'audio' || tag === 'source' || tag === 'img' || tag === 'iframe') {
+                                    rewriteMediaElement(node);
+                                }
+                                if (node.querySelectorAll) {
+                                    var children = node.querySelectorAll('video, audio, source, img, iframe');
+                                    for (var c = 0; c < children.length; c++) {
+                                        rewriteMediaElement(children[c]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            observer.observe(document.documentElement || document, { childList: true, subtree: true });
+        }
+    } catch (_) {}
+})();
+(function() {
+    if (window.__htmlToApkDownloadInterceptor) return;
+    window.__htmlToApkDownloadInterceptor = true;
+
+    // Popup'larda AndroidAPI yoktur; yalniz indirme yapabilen dar kopru verilir.
+    function dlBridge() {
+        if (typeof AndroidAPI !== 'undefined') return AndroidAPI;
+        if (typeof HtmlToApkDownloads !== 'undefined') return HtmlToApkDownloads;
+        return null;
+    }
+
+    var blobCache = (typeof Map !== 'undefined') ? new Map() : null;
+
+    if (typeof URL !== 'undefined' && URL.createObjectURL) {
+        var origCreate = URL.createObjectURL;
+        URL.createObjectURL = function(blob) {
+            var url = origCreate.call(URL, blob);
+            if (blobCache && blob instanceof Blob) {
+                try {
+                    blobCache.set(url, blob);
+                    setTimeout(function() {
+                        try { blobCache.delete(url); } catch (_) {}
+                    }, 60000);
+                } catch (_) {}
+            }
+            return url;
+        };
+
+        if (URL.revokeObjectURL) {
+            var origRevoke = URL.revokeObjectURL;
+            URL.revokeObjectURL = function(url) {
+                setTimeout(function() {
+                    try {
+                        origRevoke.call(URL, url);
+                    } catch (_) {}
+                }, 30000);
+            };
+        }
+    }
+
+    function guessFileName(href, name, mimeType) {
+        if (name && typeof name === 'string' && name.trim() && name.trim() !== 'download') {
+            var cleanName = name.trim();
+            if (cleanName.indexOf('.') !== -1) return cleanName;
+            var extFromName = (mimeType && mimeType.indexOf('json') !== -1) ? 'json' : 'bin';
+            return cleanName + '.' + extFromName;
+        }
+        var ext = 'json';
+        if (mimeType) {
+            if (mimeType.indexOf('json') !== -1) ext = 'json';
+            else if (mimeType.indexOf('csv') !== -1) ext = 'csv';
+            else if (mimeType.indexOf('text') !== -1) ext = 'txt';
+            else if (mimeType.indexOf('pdf') !== -1) ext = 'pdf';
+            else if (mimeType.indexOf('zip') !== -1) ext = 'zip';
+            else if (mimeType.indexOf('png') !== -1) ext = 'png';
+            else if (mimeType.indexOf('jpeg') !== -1 || mimeType.indexOf('jpg') !== -1) ext = 'jpg';
+        }
+        return 'export_' + Date.now() + '.' + ext;
+    }
+
+    function handleDownload(href, filename, mimeType) {
+        if (!href || typeof href !== 'string') return;
+        var isBlob = href.startsWith('blob:');
+        var isData = href.startsWith('data:');
+        if (!isBlob && !isData) return;
+
+        var safeName = guessFileName(href, filename, mimeType);
+
+        if (isBlob && blobCache && blobCache.has(href)) {
+            try {
+                var cachedBlob = blobCache.get(href);
+                var actualMime = (cachedBlob && cachedBlob.type) ? cachedBlob.type : (mimeType || 'application/json');
+                var reader = new FileReader();
+                reader.onloadend = function() {
+                    if (reader.result && dlBridge() && dlBridge().onBlobDownloaded) {
+                        dlBridge().onBlobDownloaded(reader.result, safeName, actualMime);
+                    }
+                };
+                reader.onerror = function() {
+                    if (dlBridge() && dlBridge().downloadBlobUrl) {
+                        dlBridge().downloadBlobUrl(href, safeName, actualMime);
+                    }
+                };
+                reader.readAsDataURL(cachedBlob);
+                return;
+            } catch (_) {}
+        }
+
+        var bridge = dlBridge();
+        if (bridge) {
+            if (isData && bridge.downloadDataUri) {
+                bridge.downloadDataUri(href, safeName, mimeType || 'application/json');
+            } else if (bridge.downloadBlobUrl) {
+                bridge.downloadBlobUrl(href, safeName, mimeType || 'application/json');
+            }
+        }
+    }
+
+    document.addEventListener('click', function(e) {
+        var a = e.target && e.target.closest ? e.target.closest('a') : null;
+        if (!a || typeof a.href !== 'string') return;
+        if (a.href.startsWith('blob:') || a.href.startsWith('data:')) {
+            e.preventDefault();
+            e.stopPropagation();
+            var dl = a.getAttribute('download') || a.download || '';
+            handleDownload(a.href, dl, a.type || '');
+        }
+    }, true);
+
+    try {
+        var origClick = HTMLAnchorElement.prototype.click;
+        HTMLAnchorElement.prototype.click = function() {
+            var href = this.href;
+            if (typeof href === 'string' && (href.startsWith('blob:') || href.startsWith('data:'))) {
+                var dl = this.getAttribute('download') || this.download || '';
+                handleDownload(href, dl, this.type || '');
+                return;
+            }
+            return origClick.apply(this, arguments);
+        };
+    } catch (_) {}
+
+    try {
+        var origDispatch = HTMLAnchorElement.prototype.dispatchEvent;
+        HTMLAnchorElement.prototype.dispatchEvent = function(event) {
+            if (event && (event.type === 'click' || event === 'click')) {
+                var href = this.href;
+                if (typeof href === 'string' && (href.startsWith('blob:') || href.startsWith('data:'))) {
+                    var dl = this.getAttribute('download') || this.download || '';
+                    handleDownload(href, dl, this.type || '');
+                    return false;
+                }
+            }
+            return origDispatch.apply(this, arguments);
+        };
+    } catch (_) {}
+
+    try {
+        var origOpen = window.open;
+        window.open = function(url) {
+            if (typeof url === 'string' && (url.startsWith('blob:') || url.startsWith('data:'))) {
+                handleDownload(url, 'download', '');
+                return null;
+            }
+            return origOpen.apply(this, arguments);
+        };
+    } catch (_) {}
+
+    if (!window.showSaveFilePicker) {
+        window.showSaveFilePicker = async function(options) {
+            var suggestedName = (options && options.suggestedName) ? options.suggestedName : 'export.json';
+            var mime = 'application/json';
+            if (options && options.types && options.types[0] && options.types[0].accept) {
+                var keys = Object.keys(options.types[0].accept);
+                if (keys.length > 0) mime = keys[0];
+            }
+            return {
+                name: suggestedName,
+                createWritable: async function() {
+                    var chunks = [];
+                    return {
+                        write: async function(data) {
+                            if (data instanceof Blob) {
+                                chunks.push(data);
+                            } else if (typeof data === 'string') {
+                                chunks.push(new Blob([data], { type: mime }));
+                            } else if (data instanceof ArrayBuffer || ArrayBuffer.isView(data)) {
+                                chunks.push(new Blob([data], { type: mime }));
+                            }
+                        },
+                        close: async function() {
+                            var finalBlob = new Blob(chunks, { type: mime });
+                            var reader = new FileReader();
+                            reader.onloadend = function() {
+                                if (reader.result && dlBridge() && dlBridge().onBlobDownloaded) {
+                                    dlBridge().onBlobDownloaded(reader.result, suggestedName, mime);
+                                }
+                            };
+                            reader.readAsDataURL(finalBlob);
+                        },
+                        abort: async function() {
+                            chunks = [];
+                        }
+                    };
+                }
+            };
+        };
+    }
+})();
+window.print = function() { AndroidAPI.printPage(); };
+(function() {
+    if (window.__htmlToApkWebApiShim || typeof AndroidAPI === 'undefined') return;
+    window.__htmlToApkWebApiShim = true;
+    var seq = 0;
+    function nextId(prefix) { seq += 1; return prefix + '_' + Date.now() + '_' + seq; }
+    function once(eventName, match, timeoutMs) {
+        return new Promise(function(resolve, reject) {
+            var timer = null;
+            function handler(e) {
+                var d = e && e.detail;
+                if (match && !match(d)) return;
+                window.removeEventListener(eventName, handler);
+                if (timer) clearTimeout(timer);
+                resolve(d || {});
+            }
+            window.addEventListener(eventName, handler);
+            if (timeoutMs) {
+                timer = setTimeout(function() {
+                    window.removeEventListener(eventName, handler);
+                    reject(new DOMException('Timed out', 'AbortError'));
+                }, timeoutMs);
+            }
+        });
+    }
+
+    // --- navigator.share ---
+    if (!navigator.share) {
+        var safeFileName = function(name) {
+            var n = String(name || 'file').replace(/[\\\\/:*?"<>|]/g, '_').replace(/\.\.+/g, '_');
+            return n || 'file';
+        };
+        var shareResult = function() {
+            return once('shareResult', null, 30000).then(function(d) {
+                if (!d.success) throw new DOMException(d.error || 'share_failed', 'AbortError');
+            });
+        };
+        navigator.canShare = function(data) {
+            if (!data) return false;
+            if (data.files && data.files.length) return data.files.length === 1;
+            return !!(data.title || data.text || data.url);
+        };
+        navigator.share = function(data) {
+            data = data || {};
+            if (!navigator.canShare(data)) {
+                return Promise.reject(new TypeError('navigator.share: nothing to share'));
+            }
+            if (data.files && data.files.length) {
+                var file = data.files[0];
+                return new Promise(function(resolve, reject) {
+                    var reader = new FileReader();
+                    reader.onload = function() {
+                        var pending = shareResult();
+                        AndroidAPI.shareFileFromBase64(safeFileName(file.name), String(reader.result),
+                            file.type || 'application/octet-stream');
+                        pending.then(resolve, reject);
+                    };
+                    reader.onerror = function() { reject(new DOMException('read_failed', 'DataError')); };
+                    reader.readAsDataURL(file);
+                });
+            }
+            var text = [data.title, data.text, data.url].filter(function(v) { return !!v; }).join('\n');
+            var pending = shareResult();
+            AndroidAPI.shareText(text);
+            return pending;
+        };
+    }
+
+    // --- Notification ---
+    if (typeof window.Notification === 'undefined') {
+        var NOTIF_PERMISSION = 'android.permission.POST_NOTIFICATIONS';
+        var cachedPermission = null;
+        var currentPermission = function() {
+            if (cachedPermission) return cachedPermission;
+            try { return AndroidAPI.hasPermission(NOTIF_PERMISSION) ? 'granted' : 'default'; } catch (_) { return 'default'; }
+        };
+        var ShimNotification = function(title, options) {
+            if (!(this instanceof ShimNotification)) throw new TypeError("Failed to construct 'Notification'");
+            options = options || {};
+            this.title = String(title);
+            this.body = options.body ? String(options.body) : '';
+            this.tag = options.tag || '';
+            this.data = options.data;
+            this.onclick = null; this.onshow = null; this.onerror = null; this.onclose = null;
+            this._listeners = {};
+            this._id = null;
+            var self = this;
+            if (currentPermission() !== 'granted') {
+                setTimeout(function() { self._fire('error'); }, 0);
+                return;
+            }
+            once('notificationResult', function(d) { return d && d.action === 'post'; }, 10000).then(function(d) {
+                if (d.success) { self._id = d.notificationId; self._fire('show'); } else { self._fire('error'); }
+            }, function() { self._fire('error'); });
+            AndroidAPI.showNotification(this.title, this.body, '');
+        };
+        ShimNotification.prototype.addEventListener = function(type, fn) {
+            (this._listeners[type] = this._listeners[type] || []).push(fn);
+        };
+        ShimNotification.prototype.removeEventListener = function(type, fn) {
+            var list = this._listeners[type] || [];
+            var i = list.indexOf(fn);
+            if (i >= 0) list.splice(i, 1);
+        };
+        ShimNotification.prototype._fire = function(type) {
+            var ev = { type: type, target: this };
+            var handler = this['on' + type];
+            if (typeof handler === 'function') { try { handler.call(this, ev); } catch (_) {} }
+            (this._listeners[type] || []).slice().forEach(function(fn) { try { fn.call(this, ev); } catch (_) {} }, this);
+        };
+        ShimNotification.prototype.close = function() {
+            if (this._id !== null) { try { AndroidAPI.cancelNotification(this._id); } catch (_) {} }
+            this._fire('close');
+        };
+        Object.defineProperty(ShimNotification, 'permission', { get: currentPermission });
+        ShimNotification.maxActions = 0;
+        ShimNotification.requestPermission = function(callback) {
+            var id = nextId('webNotification');
+            var pending = once('permissionResult', function(d) { return d && d.callbackId === id; }, 120000)
+                .then(function(d) { cachedPermission = d.granted ? 'granted' : 'denied'; return cachedPermission; },
+                      function() { return currentPermission(); });
+            AndroidAPI.requestNotificationPermission(id);
+            if (typeof callback === 'function') pending.then(callback);
+            return pending;
+        };
+        window.Notification = ShimNotification;
+    }
+
+    // --- screen.orientation.lock / unlock ---
+    if (typeof HtmlToApkWebCompat !== 'undefined' && window.screen && screen.orientation) {
+        try {
+            screen.orientation.lock = function(type) {
+                var error = HtmlToApkWebCompat.lockOrientation(String(type));
+                if (error) {
+                    return Promise.reject(error === 'invalid_orientation'
+                        ? new TypeError('Invalid orientation: ' + type)
+                        : new DOMException(error, 'NotSupportedError'));
+                }
+                return Promise.resolve();
+            };
+            screen.orientation.unlock = function() { HtmlToApkWebCompat.unlockOrientation(); };
+        } catch (_) {}
+    }
+})();
+</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cine Tung</title>
@@ -2171,21 +2693,21 @@ label.lbl {
   <main class="view-main">
     <section class="page active" id="page-lib">
       <h1 class="page-title">📚 Biblioteca</h1>
-      <p class="muted" id="syncInfo">4 título(s) · 21/11/2026, 20:06:55</p>
+      <p class="muted" id="syncInfo">7 título(s) · 21/11/2026, 23:01:31</p>
       <div class="genre-filter-bar"><span class="chip-active" id="genreLabelLib">Gênero: Todos</span></div>
-      <div class="grid" id="grid-lib"><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Coraline e a Porta secreta</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>One Piece</b><small>Série</small><div class="badge">Série</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Homem-aranha: Um novo dia</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>JURASSIC WORLD</b><small>Filme</small><div class="badge">Completo</div></div></div></div>
+      <div class="grid" id="grid-lib"><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Dexter</b><small>Série</small><div class="badge">Série</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Sonic : O filme</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Cruella</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Coraline e a Porta secreta</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>One Piece</b><small>Série</small><div class="badge">Série</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Homem-aranha: Um novo dia</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>JURASSIC WORLD</b><small>Filme</small><div class="badge">Completo</div></div></div></div>
       <div class="empty" id="empty-lib" style="display: none;">Nenhum título nesta aba.</div>
     </section>
     <section class="page" id="page-movies">
       <h1 class="page-title">🎬 Filmes</h1>
       <div class="genre-filter-bar"><span class="chip-active" id="genreLabelMovies">Gênero: Todos</span></div>
-      <div class="grid" id="grid-movies"><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Coraline e a Porta secreta</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Homem-aranha: Um novo dia</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>JURASSIC WORLD</b><small>Filme</small><div class="badge">Completo</div></div></div></div>
+      <div class="grid" id="grid-movies"><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Sonic : O filme</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Cruella</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Coraline e a Porta secreta</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Homem-aranha: Um novo dia</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>JURASSIC WORLD</b><small>Filme</small><div class="badge">Completo</div></div></div></div>
       <div class="empty" id="empty-movies" style="display: none;">Nenhum título nesta aba.</div>
     </section>
     <section class="page" id="page-series">
       <h1 class="page-title">📺 Séries</h1>
       <div class="genre-filter-bar"><span class="chip-active" id="genreLabelSeries">Gênero: Todos</span></div>
-      <div class="grid" id="grid-series"><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>One Piece</b><small>Série</small><div class="badge">Série</div></div></div></div>
+      <div class="grid" id="grid-series"><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Dexter</b><small>Série</small><div class="badge">Série</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>One Piece</b><small>Série</small><div class="badge">Série</div></div></div></div>
       <div class="empty" id="empty-series" style="display: none;">Nenhum título nesta aba.</div>
     </section>
     <section class="page" id="page-profile">
@@ -2212,9 +2734,9 @@ label.lbl {
 
   <nav class="bottom-nav" id="bottomNav">
     <button type="button" class="active" data-tab="lib"><span class="sym">📚</span>Biblioteca</button>
-    <button type="button" data-tab="movies"><span class="sym">🎬</span>Filmes</button>
-    <button type="button" data-tab="series"><span class="sym">📺</span>Séries</button>
-    <button type="button" data-tab="profile"><span class="sym">👤</span>Perfil</button>
+    <button type="button" data-tab="movies" class=""><span class="sym">🎬</span>Filmes</button>
+    <button type="button" data-tab="series" class=""><span class="sym">📺</span>Séries</button>
+    <button type="button" data-tab="profile" class=""><span class="sym">👤</span>Perfil</button>
   </nav>
 </div>
 
@@ -2276,7 +2798,7 @@ label.lbl {
         <button class="btn small secondary" type="button" id="btnNewSeries">+ Série</button>
       </div>
       <div style="height:12px"></div>
-      <div class="list" id="adminList"><div class="item"><img src="" alt=""><div class="meta"><b>Coraline e a Porta secreta</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>One Piece</b><small class="muted">AO AR · Série</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>Homem-aranha: Um novo dia</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>JURASSIC WORLD</b><small class="muted">AO AR · Filme</small></div></div></div>
+      <div class="list" id="adminList"><div class="item"><img src="" alt=""><div class="meta"><b>Dexter</b><small class="muted">AO AR · Série</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>Sonic : O filme</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>Cruella</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>Coraline e a Porta secreta</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>One Piece</b><small class="muted">AO AR · Série</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>Homem-aranha: Um novo dia</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>JURASSIC WORLD</b><small class="muted">AO AR · Filme</small></div></div></div>
     </aside>
     <main class="card2" id="editor"><h2 style="margin:0 0 8px;font-size:16px">Editor</h2><p class="muted">Selecione ou crie um item.</p></main>
   </div>
@@ -2398,6 +2920,81 @@ label.lbl {
      Use o botão "Copiar HTML completo" no criador para atualizar.
      ========================================================= */
   var EMBEDDED_CATALOG = [
+  {
+    "id": "id_su7t8dsmwr6ugs9",
+    "type": "series",
+    "title": "Dexter",
+    "description": "",
+    "poster": "",
+    "url": "",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Ação",
+      "Terror",
+      "Documentário",
+      "Suspense",
+      "Ficção"
+    ],
+    "seasons": [
+      {
+        "name": "Temporada 1",
+        "episodes": [
+          {
+            "title": "Ep 1",
+            "url": "https://latino.solo-latino.com/pt/detail/drama/9HS3fgJL64irdVnmhcFEf-Dexter-Season-1/1",
+            "subtitleUrl": ""
+          }
+        ]
+      }
+    ],
+    "updatedAt": 1795312868808,
+    "createdAt": 1795312730745
+  },
+  {
+    "id": "id_40f1o1wmwr6s93n",
+    "type": "movie",
+    "title": "Sonic : O filme",
+    "description": "",
+    "poster": "",
+    "url": "https://es.cuevana4br.com/pt/detail/movie/hch3oQtwgSCZQ67Kitib6-Sonic-O-Filme",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Ação",
+      "Aventura",
+      "Ficção",
+      "Animação",
+      "Fantasia",
+      "Suspense"
+    ],
+    "seasons": [],
+    "updatedAt": 1795312887110,
+    "createdAt": 1795312627475
+  },
+  {
+    "id": "id_v4ero27mwr6pmza",
+    "type": "movie",
+    "title": "Cruella",
+    "description": "",
+    "poster": "",
+    "url": "https://ver.123pelicula.com/pt/detail/movie/Qs1nBk4HkERH83EMoPTeo-Cruella",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Ação",
+      "Suspense",
+      "Drama",
+      "Fantasia",
+      "Ficção"
+    ],
+    "seasons": [],
+    "updatedAt": 1795312891455,
+    "createdAt": 1795312505494
+  },
   {
     "id": "id_cp4b9k1mwqyf6ke",
     "type": "movie",
@@ -4577,6 +5174,7 @@ label.lbl {
   /* auto-sync GitHub desativado */
 })();
 </script>
+
 
 
 </body></html>
