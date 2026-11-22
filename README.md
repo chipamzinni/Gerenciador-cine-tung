@@ -1,5 +1,167 @@
 <!DOCTYPE html>
 <html lang="pt-BR" style="--bg: #000000;"><head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<style id="ctBootCss">
+  #ctBoot{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;z-index:2147483647;gap:14px;padding:24px;text-align:center;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#fff;}
+  #ctBoot .logo{font-size:28px;font-weight:700;}
+  #ctBoot .logo span{color:#e8b86d;}
+  #ctBoot .spin{width:36px;height:36px;border:3px solid #333;border-top-color:#e8b86d;border-radius:50%;animation:ctsp .8s linear infinite;}
+  @keyframes ctsp{to{transform:rotate(360deg)}}
+  #ctBoot .msg{font-size:13px;color:#aaa;max-width:280px;line-height:1.4;}
+  #ctBoot .err{color:#f66;font-size:12px;max-width:300px;display:none;}
+  #ctBoot button{margin-top:8px;background:#e8b86d;color:#000;border:0;border-radius:10px;padding:10px 18px;font-weight:700;font-size:14px;}
+  #ctBoot .btn2{background:#333;color:#eee;}
+</style>
+<script>
+/* Cine Tung remote loader — APK puxa HTML+filmes do GitHub */
+(function () {
+  var REMOTE_URLS = [
+    "https://raw.githubusercontent.com/chipamzinni/Gerenciador-cine-tung/refs/heads/main/README.md",
+    "https://cdn.jsdelivr.net/gh/chipamzinni/Gerenciador-cine-tung@main/README.md",
+    "https://cdn.jsdelivr.net/gh/chipamzinni/Gerenciador-cine-tung/README.md"
+  ];
+  var SKIP_KEY = "__cine_tung_boot_skip_v1";
+
+  try {
+    if (sessionStorage.getItem(SKIP_KEY) === "1") {
+      sessionStorage.removeItem(SKIP_KEY);
+      return;
+    }
+  } catch (e) {}
+
+  if (window.__CINE_TUNG_FROM_REMOTE__ || window.__CINE_TUNG_APP__) return;
+
+  var bootDone = false;
+  var started = false;
+
+  function ensureBootDom() {
+    if (document.getElementById("ctBoot")) return;
+    var host = document.body;
+    if (!host) {
+      try {
+        host = document.createElement("body");
+        document.documentElement.appendChild(host);
+      } catch (e) { return; }
+    }
+    var d = document.createElement("div");
+    d.id = "ctBoot";
+    d.innerHTML =
+      '<div class="logo">Cine <span>Tung</span></div>' +
+      '<div class="spin"></div>' +
+      '<div class="msg" id="ctBootMsg">Carregando do GitHub…</div>' +
+      '<div class="err" id="ctBootErr"></div>' +
+      '<button type="button" id="ctBootRetry" style="display:none">Tentar de novo</button>' +
+      '<button type="button" id="ctBootLocal" class="btn2" style="display:none">Usar versão offline</button>';
+    host.appendChild(d);
+    var r = document.getElementById("ctBootRetry");
+    var l = document.getElementById("ctBootLocal");
+    if (r) r.onclick = function () { try { sessionStorage.removeItem(SKIP_KEY); } catch (e) {} location.reload(); };
+    if (l) l.onclick = function () { useLocal(); };
+  }
+
+  function setMsg(t) {
+    var el = document.getElementById("ctBootMsg");
+    if (el) el.textContent = t || "";
+  }
+
+  function showError(msg) {
+    ensureBootDom();
+    var e = document.getElementById("ctBootErr");
+    var r = document.getElementById("ctBootRetry");
+    var l = document.getElementById("ctBootLocal");
+    if (e) { e.style.display = "block"; e.textContent = msg || "Falha ao baixar"; }
+    if (r) r.style.display = "inline-block";
+    if (l) l.style.display = "inline-block";
+    setMsg("Não foi possível atualizar pelo GitHub");
+  }
+
+  function useLocal() {
+    bootDone = true;
+    var b = document.getElementById("ctBoot");
+    if (b) try { b.remove(); } catch (e) {}
+    var css = document.getElementById("ctBootCss");
+    if (css) try { css.remove(); } catch (e) {}
+  }
+
+  function applyRemoteHtml(html) {
+    if (!html || html.length < 1500) throw new Error("HTML remoto muito pequeno");
+    if (html.indexOf("<html") < 0 && html.indexOf("<HTML") < 0) throw new Error("Resposta não é HTML");
+    try { sessionStorage.setItem(SKIP_KEY, "1"); } catch (e) {}
+    try {
+      html = html.replace(
+        /<head([^>]*)>/i,
+        '<head$1><script>window.__CINE_TUNG_FROM_REMOTE__=1;window.__CINE_TUNG_APP__=1;<\\/script>'
+      );
+    } catch (e) {}
+    document.open("text/html", "replace");
+    document.write(html);
+    document.close();
+  }
+
+  function fetchText(url) {
+    var u = url + (url.indexOf("?") >= 0 ? "&" : "?") + "t=" + Date.now();
+    if (typeof fetch === "function") {
+      return fetch(u, { cache: "no-store", mode: "cors" }).then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.text();
+      });
+    }
+    return new Promise(function (resolve, reject) {
+      try {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", u, true);
+        try { xhr.setRequestHeader("Cache-Control", "no-cache"); } catch (e) {}
+        xhr.onload = function () {
+          if (xhr.status >= 200 && xhr.status < 300) resolve(xhr.responseText);
+          else reject(new Error("HTTP " + xhr.status));
+        };
+        xhr.onerror = function () { reject(new Error("rede")); };
+        xhr.send();
+      } catch (e) { reject(e); }
+    });
+  }
+
+  function tryUrls(i) {
+    if (bootDone) return;
+    if (i >= REMOTE_URLS.length) {
+      showError("Sem conexão ou repo indisponível.");
+      return;
+    }
+    setMsg("Baixando atualização (" + (i + 1) + "/" + REMOTE_URLS.length + ")…");
+    fetchText(REMOTE_URLS[i])
+      .then(function (txt) {
+        if (bootDone) return;
+        setMsg("Aplicando…");
+        applyRemoteHtml(txt);
+      })
+      .catch(function (err) {
+        tryUrls(i + 1);
+      });
+  }
+
+  function start() {
+    if (started) return;
+    started = true;
+    ensureBootDom();
+    setTimeout(function () {
+      if (!bootDone && document.getElementById("ctBoot")) {
+        showError("Tempo esgotado. Verifique a internet.");
+      }
+    }, 15000);
+    tryUrls(0);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start);
+  } else {
+    start();
+  }
+  // tenta cedo também (WebView às vezes já tem body)
+  setTimeout(function () { try { start(); } catch (e) {} }, 0);
+})();
+</script>
+
 <script>
 (function() {
     if (window.__htmlToApkCleartextHooked) return;
@@ -2202,6 +2364,63 @@ button, input, textarea, select { font-family: inherit; }
   transition: transform .25s var(--ease), box-shadow .25s;
 }
 .crown-btn:active { transform: scale(.92); }
+
+/* icons (no emoji) */
+.ico-crown, .ico-lib, .ico-movie, .ico-series, .ico-user, .ico-search {
+  display: inline-block; width: 18px; height: 18px; vertical-align: -3px;
+  background: currentColor; opacity: .9;
+}
+.ico-crown {
+  width: 16px; height: 14px;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M3 19h18v2H3v-2zm2-6l3-7 4 5 4-5 3 7H5z'/%3E%3C/svg%3E") center/contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M3 19h18v2H3v-2zm2-6l3-7 4 5 4-5 3 7H5z'/%3E%3C/svg%3E") center/contain no-repeat;
+  background: var(--accent, #e8b86d);
+}
+.ico-lib {
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M4 4h5v16H4V4zm6 0h5v16h-5V4zm6 0h4v16h-4V4z'/%3E%3C/svg%3E") center/contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M4 4h5v16H4V4zm6 0h5v16h-5V4zm6 0h4v16h-4V4z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.ico-movie {
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z'/%3E%3C/svg%3E") center/contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.ico-series {
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z'/%3E%3C/svg%3E") center/contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.ico-user {
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z'/%3E%3C/svg%3E") center/contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.ico-search {
+  width: 16px; height: 16px; opacity: .55;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E") center/contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.bottom-nav button .sym {
+  display: block; margin: 0 auto 2px; width: 22px; height: 22px;
+}
+.card .poster {
+  background-color: #141416 !important;
+  background-size: cover !important;
+  background-position: center !important;
+  position: relative;
+}
+.card .poster.no-art::after {
+  content: attr(data-initials);
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--serif, Georgia, serif);
+  font-size: 28px; letter-spacing: .04em;
+  color: rgba(232,184,109,.55);
+  background: linear-gradient(160deg, #1a1a1e 0%, #0e0e10 100%);
+}
+.card .info b { font-weight: 600; }
+.dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent, #e8b86d); margin-right: 8px; vertical-align: middle;
+}
+
 .top-avatar {
   width: 38px; height: 38px; border-radius: 50%; object-fit: cover;
   border: 2px solid var(--line2); background: var(--panel2); cursor: pointer;
@@ -2680,38 +2899,38 @@ label.lbl {
       <div class="brand">Cine <span>Tung</span></div>
       <div class="top-right">
         <button type="button" class="genre-fab" id="btnGenreDrawer" title="Gêneros">☰</button>
-        <button type="button" class="crown-btn" id="crownBtn" title="Área restrita">👑</button>
+        <button type="button" class="crown-btn" id="crownBtn" title="Área restrita"><span class="ico-crown"></span></button>
         <img class="top-avatar" id="topAvatar" alt="" title="Perfil" src="">
       </div>
     </div>
     <div class="search" id="searchBar" style="display: flex;">
-      <span>🔍</span>
+      <span class="ico-search"></span>
       <input id="q" placeholder="Pesquisar por nome...">
     </div>
   </div>
 
   <main class="view-main">
     <section class="page active" id="page-lib">
-      <h1 class="page-title">📚 Biblioteca</h1>
+      <h1 class="page-title">Biblioteca</h1>
       <p class="muted" id="syncInfo">7 título(s) · 21/11/2026, 23:01:31</p>
       <div class="genre-filter-bar"><span class="chip-active" id="genreLabelLib">Gênero: Todos</span></div>
       <div class="grid" id="grid-lib"><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Dexter</b><small>Série</small><div class="badge">Série</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Sonic : O filme</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Cruella</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Coraline e a Porta secreta</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>One Piece</b><small>Série</small><div class="badge">Série</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Homem-aranha: Um novo dia</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>JURASSIC WORLD</b><small>Filme</small><div class="badge">Completo</div></div></div></div>
       <div class="empty" id="empty-lib" style="display: none;">Nenhum título nesta aba.</div>
     </section>
     <section class="page" id="page-movies">
-      <h1 class="page-title">🎬 Filmes</h1>
+      <h1 class="page-title">Filmes</h1>
       <div class="genre-filter-bar"><span class="chip-active" id="genreLabelMovies">Gênero: Todos</span></div>
       <div class="grid" id="grid-movies"><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Sonic : O filme</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Cruella</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Coraline e a Porta secreta</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Homem-aranha: Um novo dia</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>JURASSIC WORLD</b><small>Filme</small><div class="badge">Completo</div></div></div></div>
       <div class="empty" id="empty-movies" style="display: none;">Nenhum título nesta aba.</div>
     </section>
     <section class="page" id="page-series">
-      <h1 class="page-title">📺 Séries</h1>
+      <h1 class="page-title">Séries</h1>
       <div class="genre-filter-bar"><span class="chip-active" id="genreLabelSeries">Gênero: Todos</span></div>
       <div class="grid" id="grid-series"><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>Dexter</b><small>Série</small><div class="badge">Série</div></div></div><div class="card"><div class="poster" style="background-image:url('')"></div><div class="info"><b>One Piece</b><small>Série</small><div class="badge">Série</div></div></div></div>
       <div class="empty" id="empty-series" style="display: none;">Nenhum título nesta aba.</div>
     </section>
     <section class="page" id="page-profile">
-      <h1 class="page-title">👤 Perfil</h1>
+      <h1 class="page-title">Perfil</h1>
       <div class="profile-box">
         <div class="avatar-wrap">
           <img class="avatar" id="avatarImg" alt="" src="">
@@ -2733,10 +2952,10 @@ label.lbl {
   </main>
 
   <nav class="bottom-nav" id="bottomNav">
-    <button type="button" class="active" data-tab="lib"><span class="sym">📚</span>Biblioteca</button>
-    <button type="button" data-tab="movies" class=""><span class="sym">🎬</span>Filmes</button>
-    <button type="button" data-tab="series" class=""><span class="sym">📺</span>Séries</button>
-    <button type="button" data-tab="profile" class=""><span class="sym">👤</span>Perfil</button>
+    <button type="button" class="active" data-tab="lib"><span class="sym ico-lib"></span>Biblioteca</button>
+    <button type="button" data-tab="movies"><span class="sym ico-movie"></span>Filmes</button>
+    <button type="button" data-tab="series"><span class="sym ico-series"></span>Séries</button>
+    <button type="button" data-tab="profile"><span class="sym ico-user"></span>Perfil</button>
   </nav>
 </div>
 
@@ -2748,9 +2967,9 @@ label.lbl {
     <b>Gêneros</b>
     <button type="button" class="icon-btn" id="drawerClose" style="width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--panel2);color:var(--text);cursor:pointer">✕</button>
   </div>
-  <div class="drawer-body" id="drawerGenreList"><button type="button" class="drawer-item active"><span>✨</span> Todos</button><button type="button" class="drawer-item"><span>🏷</span> Ação</button><button type="button" class="drawer-item"><span>🏷</span> Aventura</button><button type="button" class="drawer-item"><span>🏷</span> Comédia</button><button type="button" class="drawer-item"><span>🏷</span> Drama</button><button type="button" class="drawer-item"><span>🏷</span> Terror</button><button type="button" class="drawer-item"><span>🏷</span> Romance</button><button type="button" class="drawer-item"><span>🏷</span> Ficção</button><button type="button" class="drawer-item"><span>🏷</span> Animação</button><button type="button" class="drawer-item"><span>🏷</span> Documentário</button><button type="button" class="drawer-item"><span>🏷</span> Suspense</button><button type="button" class="drawer-item"><span>🏷</span> Fantasia</button></div>
+  <div class="drawer-body" id="drawerGenreList"><button type="button" class="drawer-item active"><span class="dot"></span> Todos</button><button type="button" class="drawer-item"><span>🏷</span> Ação</button><button type="button" class="drawer-item"><span>🏷</span> Aventura</button><button type="button" class="drawer-item"><span>🏷</span> Comédia</button><button type="button" class="drawer-item"><span>🏷</span> Drama</button><button type="button" class="drawer-item"><span>🏷</span> Terror</button><button type="button" class="drawer-item"><span>🏷</span> Romance</button><button type="button" class="drawer-item"><span>🏷</span> Ficção</button><button type="button" class="drawer-item"><span>🏷</span> Animação</button><button type="button" class="drawer-item"><span>🏷</span> Documentário</button><button type="button" class="drawer-item"><span>🏷</span> Suspense</button><button type="button" class="drawer-item"><span>🏷</span> Fantasia</button></div>
   <div class="drawer-foot">
-    <button type="button" class="drawer-item" id="btnDrawerHome"><span>🏠</span> Início (Biblioteca)</button>
+    <button type="button" class="drawer-item" id="btnDrawerHome"><span class="dot"></span> Início (Biblioteca)</button>
     <button type="button" class="drawer-item" id="btnDrawerSettings"><span>⚙️</span> Configurações</button>
     <div class="drawer-settings hidden" id="drawerSettingsPanel">
       <label class="lbl">Cor de fundo do app</label>
@@ -2780,13 +2999,13 @@ label.lbl {
 </div>
 
 <!-- ========== ADMIN ========== -->
-<div id="adminApp" class="on">
+<div id="adminApp" class="">
   <div class="admin-header">
     <div class="brand">Cine <span>Tung</span> · Criador</div>
     <div class="btns" style="margin:0">
       <button class="btn small secondary" type="button" id="btnBackViewer">← Voltar ao Cine Tung</button>
       <button class="btn small secondary" type="button" id="btnAdminMsg">Mensagens</button>
-      <button class="btn small ok" type="button" id="btnCopyFullHtml">📋 Copiar HTML completo</button>
+      <button class="btn small ok" type="button" id="btnCopyFullHtml">Copiar HTML completo</button>
     </div>
   </div>
   <div class="wrap">
@@ -2897,7 +3116,7 @@ label.lbl {
     </div>
   </div>
 </div>
-<div class="toast show" id="toast">Montando HTML completo do Cine Tung…</div>
+<div class="toast" id="toast"></div>
 
 <script>
 (function () {
@@ -2907,6 +3126,8 @@ label.lbl {
   var MSG_KEY = "cinetung_messages_v1";
   var SYNC_URL_KEY = "cinetung_sync_url_v1";
   var MSG_SYNC_URL_KEY = "cinetung_msg_sync_url_v1";
+  // URL padrão: HTML completo (ou catalog.json) no GitHub — todos os APKs puxam daqui
+  var DEFAULT_SYNC_URL = "https://raw.githubusercontent.com/chipamzinni/Gerenciador-cine-tung/refs/heads/main/README.md";
   var lastLocalEdit = 0;
   var DELETED_KEY = "cinetung_deleted_v1";
   var THEME_KEY = "cinetung_bg_color_v1";
@@ -3129,6 +3350,89 @@ label.lbl {
       return ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" })[c];
     });
   }
+
+  /* Comprime imagem da galeria p/ caber no HTML/GitHub (capa ~30–60KB) */
+  function compressImageFile(file, maxW, quality) {
+    maxW = maxW || 360;
+    quality = quality || 0.68;
+    return new Promise(function (resolve, reject) {
+      try {
+        var url = URL.createObjectURL(file);
+        var img = new Image();
+        img.onload = function () {
+          try {
+            var w = img.naturalWidth || img.width;
+            var h = img.naturalHeight || img.height;
+            if (!w || !h) { URL.revokeObjectURL(url); reject(new Error("img")); return; }
+            var scale = Math.min(1, maxW / w);
+            var cw = Math.max(1, Math.round(w * scale));
+            var ch = Math.max(1, Math.round(h * scale));
+            var canvas = document.createElement("canvas");
+            canvas.width = cw; canvas.height = ch;
+            var ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, cw, ch);
+            var out = canvas.toDataURL("image/jpeg", quality);
+            // se ainda grande, aperta mais
+            if (out.length > 90000) {
+              scale = Math.min(1, 280 / w);
+              cw = Math.max(1, Math.round(w * scale));
+              ch = Math.max(1, Math.round(h * scale));
+              canvas.width = cw; canvas.height = ch;
+              ctx = canvas.getContext("2d");
+              ctx.drawImage(img, 0, 0, cw, ch);
+              out = canvas.toDataURL("image/jpeg", 0.55);
+            }
+            URL.revokeObjectURL(url);
+            resolve(out);
+          } catch (e) {
+            try { URL.revokeObjectURL(url); } catch (e2) {}
+            reject(e);
+          }
+        };
+        img.onerror = function () {
+          try { URL.revokeObjectURL(url); } catch (e) {}
+          reject(new Error("fail"));
+        };
+        img.src = url;
+      } catch (e) { reject(e); }
+    });
+  }
+  function compressDataUrl(dataUrl, maxW, quality) {
+    maxW = maxW || 360;
+    quality = quality || 0.68;
+    return new Promise(function (resolve) {
+      if (!dataUrl || dataUrl.indexOf("data:image") !== 0) { resolve(dataUrl || ""); return; }
+      if (dataUrl.length < 50000) { resolve(dataUrl); return; } // já pequena
+      try {
+        var img = new Image();
+        img.onload = function () {
+          try {
+            var w = img.naturalWidth || img.width;
+            var h = img.naturalHeight || img.height;
+            var scale = Math.min(1, maxW / Math.max(w, 1));
+            var cw = Math.max(1, Math.round(w * scale));
+            var ch = Math.max(1, Math.round(h * scale));
+            var canvas = document.createElement("canvas");
+            canvas.width = cw; canvas.height = ch;
+            canvas.getContext("2d").drawImage(img, 0, 0, cw, ch);
+            var out = canvas.toDataURL("image/jpeg", quality);
+            if (out.length > 90000) {
+              scale = Math.min(1, 260 / Math.max(w, 1));
+              cw = Math.max(1, Math.round(w * scale));
+              ch = Math.max(1, Math.round(h * scale));
+              canvas.width = cw; canvas.height = ch;
+              canvas.getContext("2d").drawImage(img, 0, 0, cw, ch);
+              out = canvas.toDataURL("image/jpeg", 0.5);
+            }
+            resolve(out);
+          } catch (e) { resolve(dataUrl); }
+        };
+        img.onerror = function () { resolve(dataUrl); };
+        img.src = dataUrl;
+      } catch (e) { resolve(dataUrl); }
+    });
+  }
+
   var memoryCatalog = null;
   var memoryMsgs = null;
   function loadRaw() {
@@ -3169,7 +3473,7 @@ label.lbl {
         var lite = catalog.map(function (item) {
           var o = {};
           for (var k in item) if (Object.prototype.hasOwnProperty.call(item, k)) o[k] = item[k];
-          if (o.poster && typeof o.poster === "string" && o.poster.indexOf("data:") === 0 && o.poster.length > 8000) {
+          if (o.poster && typeof o.poster === "string" && o.poster.indexOf("data:") === 0 && o.poster.length > 120000) {
             o.poster = "";
             o._hadBase64Poster = true;
           }
@@ -3184,7 +3488,7 @@ label.lbl {
       }
     }
     try { localStorage.setItem(KEY + "_backup", fullJson); } catch (e) {
-      try { localStorage.setItem(KEY + "_backup", JSON.stringify(catalog.map(function(it){ var o={}; for(var k in it)o[k]=it[k]; if(o.poster&&o.poster.length>8000&&o.poster.indexOf("data:")===0)o.poster=""; return o; }))); } catch (e2) {}
+      try { localStorage.setItem(KEY + "_backup", JSON.stringify(catalog.map(function(it){ var o={}; for(var k in it)o[k]=it[k]; if(o.poster&&o.poster.length>120000&&o.poster.indexOf("data:")===0)o.poster=""; return o; }))); } catch (e2) {}
     }
     if (msg) toast(msg);
     else if (saved) { /* silent ok */ }
@@ -3192,7 +3496,8 @@ label.lbl {
     try { renderGrid(); } catch (e) {}
   }
   function getSyncUrl() {
-    return (localStorage.getItem(SYNC_URL_KEY) || "").trim();
+    var u = (localStorage.getItem(SYNC_URL_KEY) || "").trim();
+    return u || DEFAULT_SYNC_URL;
   }
   function setSyncStatus(msg) {
     var el = $("syncStatus");
@@ -3240,7 +3545,53 @@ label.lbl {
     });
     return out;
   }
-  function fetchJsonFirstOk(urls) {
+  /* Extrai lista de filmes de: JSON puro []  OU  HTML com var EMBEDDED_CATALOG = [...] */
+  function parseCatalogPayload(text) {
+    text = String(text || "").trim();
+    if (!text) throw new Error("resposta vazia");
+    // 1) JSON direto
+    if (text.charAt(0) === "[") {
+      var arr = JSON.parse(text);
+      if (!Array.isArray(arr)) throw new Error("JSON precisa ser lista []");
+      return arr;
+    }
+    // 2) HTML com EMBEDDED_CATALOG
+    var needle = "var EMBEDDED_CATALOG";
+    var i = text.indexOf(needle);
+    if (i < 0) {
+      // tenta só o nome sem var
+      i = text.indexOf("EMBEDDED_CATALOG");
+      if (i < 0) throw new Error("Sem EMBEDDED_CATALOG no HTML remoto");
+    }
+    var eq = text.indexOf("=", i);
+    if (eq < 0) throw new Error("EMBEDDED_CATALOG sem =");
+    var j = eq + 1;
+    while (j < text.length && /\s/.test(text.charAt(j))) j++;
+    if (text.charAt(j) !== "[") throw new Error("EMBEDDED_CATALOG não é array");
+    var depth = 0, inStr = false, strQ = "", esc = false, start = j;
+    for (; j < text.length; j++) {
+      var ch = text.charAt(j);
+      if (inStr) {
+        if (esc) { esc = false; continue; }
+        if (ch === "\") { esc = true; continue; }
+        if (ch === strQ) inStr = false;
+        continue;
+      }
+      if (ch === '"' || ch === "'" || ch === "`") { inStr = true; strQ = ch; continue; }
+      if (ch === "[") { depth++; continue; }
+      if (ch === "]") {
+        depth--;
+        if (depth === 0) {
+          var json = text.slice(start, j + 1);
+          var parsed = JSON.parse(json);
+          if (!Array.isArray(parsed)) throw new Error("catálogo remoto inválido");
+          return parsed;
+        }
+      }
+    }
+    throw new Error("Não fechou EMBEDDED_CATALOG");
+  }
+  function fetchCatalogFirstOk(urls) {
     var i = 0;
     function next() {
       if (i >= urls.length) return Promise.reject(new Error("Nenhuma URL respondeu"));
@@ -3249,8 +3600,9 @@ label.lbl {
       return fetch(u, { cache: "no-store", mode: "cors" })
         .then(function (r) {
           if (!r.ok) throw new Error("HTTP " + r.status);
-          return r.json();
+          return r.text();
         })
+        .then(function (txt) { return parseCatalogPayload(txt); })
         .catch(function () {
           // fallback XHR (alguns WebViews se comportam melhor)
           return new Promise(function (resolve, reject) {
@@ -3260,7 +3612,7 @@ label.lbl {
               xhr.setRequestHeader("Cache-Control", "no-cache");
               xhr.onload = function () {
                 if (xhr.status >= 200 && xhr.status < 300) {
-                  try { resolve(JSON.parse(xhr.responseText)); }
+                  try { resolve(parseCatalogPayload(xhr.responseText)); }
                   catch (e) { reject(e); }
                 } else reject(new Error("HTTP " + xhr.status));
               };
@@ -3327,7 +3679,7 @@ label.lbl {
     var before = JSON.stringify(localNow);
     var urls = expandCatalogUrls(url);
     setSyncStatus("Baixando catálogo (" + urls.length + " rota(s))…");
-    return fetchJsonFirstOk(urls)
+    return fetchCatalogFirstOk(urls)
       .then(function (data) {
         if (!Array.isArray(data)) throw new Error("JSON precisa ser uma lista []");
         var merged = silent ? mergeCatalog(localNow, data) : data; // manual pull = force remote
@@ -3452,6 +3804,7 @@ label.lbl {
     var code = ($("crownCode").value || "").trim();
     if (code === ADMIN_CODE) {
       closeCrown();
+      window.__cineAdminUnlocked = true;
       showAdmin();
       toast("Bem-vindo ao criador");
     } else {
@@ -3664,8 +4017,16 @@ label.lbl {
       var el = document.createElement("div");
       el.className = "card";
       el.onclick = function () { openPlayer(item); };
+      var poster = String(item.poster || "").trim();
+      var initials = (item.title || "?").replace(/[^A-Za-z0-9À-ÿ ]/g, " ").trim().split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0); }).join("").toUpperCase() || "?";
+      var posterHtml;
+      if (poster) {
+        posterHtml = '<div class="poster" style="background-image:url(\'' + poster.replace(/'/g, "%27").replace(/"/g, "&quot;") + '\')"></div>';
+      } else {
+        posterHtml = '<div class="poster no-art" data-initials="' + escapeHtml(initials) + '"></div>';
+      }
       el.innerHTML =
-        '<div class="poster" style="background-image:url(\'' + String(item.poster || "").replace(/'/g, "%27") + '\')"></div>' +
+        posterHtml +
         '<div class="info"><b>' + escapeHtml(item.title) + '</b>' +
         '<small>' + (item.type === "movie" ? "Filme" : "Série") + '</small>' +
         '<div class="badge">' + (item.type === "series" ? "Série" : "Completo") + '</div></div>';
@@ -3775,7 +4136,10 @@ label.lbl {
         "gnula", "playhbo", "pluto.tv", "123pelicula", "pelicula",
         "netflix.com", "primevideo", "disneyplus", "hbomax", "max.com",
         "spotify.com", "cinecalidad", "pelispedia", "verpeliculas",
-        "entrepeliculas", "grantorrent", "divxtotal"
+        "entrepeliculas", "grantorrent", "divxtotal",
+        "solo-latino", "latino.solo", "solo-lat", "cuevana",
+        "superflix", "filmesonline", "warezcdn", "embed.", "player.",
+        "overflix", "megafilmes", "redecanais", "cmd5.", "votando"
       ];
       for (var i = 0; i < blocked.length; i++) {
         if (host.indexOf(blocked[i]) >= 0) return true;
@@ -3802,34 +4166,58 @@ label.lbl {
     } catch (e) {}
   }
   function openExternalUrl(url) {
-    if (!url) return;
+    if (!url) return false;
     url = String(url).trim();
     var opened = false;
 
-    // 1) Cordova / InAppBrowser (alguns HTML→APK)
+    // 0) AndroidAPI / HtmlToApk bridges (várias assinaturas)
     try {
-      if (window.cordova && window.cordova.InAppBrowser) {
+      var bridges = [];
+      if (typeof AndroidAPI !== "undefined") bridges.push(AndroidAPI);
+      if (typeof HtmlToApkDownloads !== "undefined") bridges.push(HtmlToApkDownloads);
+      if (window.Android) bridges.push(window.Android);
+      if (window.AndroidInterface) bridges.push(window.AndroidInterface);
+      if (window.JSBridge) bridges.push(window.JSBridge);
+      var methods = ["openUrl", "openExternal", "openExternalUrl", "openBrowser", "openInBrowser", "launchUrl", "openLink"];
+      for (var b = 0; b < bridges.length && !opened; b++) {
+        var api = bridges[b];
+        if (!api) continue;
+        for (var m = 0; m < methods.length; m++) {
+          try {
+            if (typeof api[methods[m]] === "function") {
+              api[methods[m]](url);
+              opened = true;
+              break;
+            }
+          } catch (e) {}
+        }
+      }
+    } catch (e) {}
+
+    // 1) Cordova
+    try {
+      if (!opened && window.cordova && window.cordova.InAppBrowser) {
         window.cordova.InAppBrowser.open(url, "_system");
         opened = true;
-      } else if (window.SafariViewController) {
-        // raramente presente
       }
     } catch (e) {}
 
-    // 2) ponte Android comum em builders
-    try {
-      if (!opened && window.Android && typeof window.Android.openUrl === "function") {
-        window.Android.openUrl(url); opened = true;
-      }
-      if (!opened && window.Android && typeof window.Android.openExternal === "function") {
-        window.Android.openExternal(url); opened = true;
-      }
-      if (!opened && window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.openUrl) {
-        window.webkit.messageHandlers.openUrl.postMessage(url); opened = true;
-      }
-    } catch (e) {}
+    // 2) intent:// (Chrome/Android)
+    if (!opened) {
+      try {
+        var intent = "intent://" + url.replace(/^https?:\/\//i, "") +
+          "#Intent;scheme=https;action=android.intent.action.VIEW;end";
+        var a = document.createElement("a");
+        a.href = intent;
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () { try { a.remove(); } catch (e) {} }, 400);
+        opened = true;
+      } catch (e) {}
+    }
 
-    // 3) window.open com alvos que alguns WebViews respeitam
+    // 3) window.open
     if (!opened) {
       try {
         var w = window.open(url, "_system");
@@ -3843,78 +4231,45 @@ label.lbl {
       } catch (e) {}
     }
 
-    // 4) <a target=_blank> sintético
+    // 4) <a target=_blank>
     if (!opened) {
       try {
-        var a = document.createElement("a");
-        a.href = url;
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        a.style.display = "none";
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function () { try { a.remove(); } catch (e) {} }, 500);
-        opened = true; // assume tentativa
+        var a2 = document.createElement("a");
+        a2.href = url;
+        a2.target = "_blank";
+        a2.rel = "noopener noreferrer";
+        a2.setAttribute("download", ""); // alguns WebViews ignoram
+        a2.style.display = "none";
+        document.body.appendChild(a2);
+        a2.click();
+        setTimeout(function () { try { a2.remove(); } catch (e) {} }, 400);
+        opened = true;
       } catch (e) {}
     }
 
-    // 5) fallback forte em WebView: navega a própria janela (usuário volta com botão voltar do Android)
-    // fazemos com confirmação visual via toast e delay curto
-    try {
-      toast("Abrindo link…");
-    } catch (e) {}
-    setTimeout(function () {
-      try {
-        // tenta top (sai do iframe/contexto)
-        if (window.top && window.top !== window) {
-          window.top.location.href = url;
-        } else {
-          window.location.href = url;
-        }
-      } catch (e) {
-        try { window.location.assign(url); } catch (e2) {}
-      }
-    }, 120);
+    // NÃO usa location.href aqui — isso mantém o site bloqueado DENTRO do APK
+    try { toast(opened ? "Abrindo no navegador…" : "Toque em Abrir no navegador"); } catch (e) {}
+    return opened;
   }
   function renderExternalCard(stage, url, reason) {
     setNativeControlsVisible(false);
     stage.innerHTML = "";
     var box = document.createElement("div");
-    box.style.cssText = "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:#0c101a";
+    box.style.cssText = "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:#0a0a0b";
+    var safe = String(url || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
     box.innerHTML =
-      '<div style="max-width:360px;width:100%;background:#121722;border:1px solid #243044;border-radius:16px;padding:20px;text-align:center">' +
-      '<div style="font-size:28px;margin-bottom:10px">🌐</div>' +
-      '<b style="display:block;font-size:16px;margin-bottom:8px">Assistir fora do player</b>' +
-      '<p style="color:#97a3bb;font-size:13px;line-height:1.45;margin:0 0 14px">' + (reason || "Este site bloqueia o player embutido. Abra o link para assistir.") + '</p>' +
-      '<p style="color:#6b7a99;font-size:11px;word-break:break-all;margin:0 0 16px">' + String(url).replace(/</g,"&lt;") + '</p>' +
-      '<button type="button" id="btnExtOpen" style="width:100%;border:0;border-radius:12px;padding:14px;background:#6c5ce7;color:#fff;font-weight:800;font-size:15px;cursor:pointer">Assistir no navegador</button>' +
-      '<button type="button" id="btnExtHere" style="width:100%;border:0;border-radius:12px;padding:12px;margin-top:8px;background:#2ed573;color:#06210f;font-weight:800;font-size:13px;cursor:pointer">Abrir nesta tela</button>' +
-      '<button type="button" id="btnExtCopy" style="width:100%;border:0;border-radius:12px;padding:12px;margin-top:8px;background:#243049;color:#fff;font-weight:700;font-size:13px;cursor:pointer">Copiar link</button>' +
-      '</div>';
+      '<div style="max-width:360px;width:100%;background:#121214;border:1px solid #2a2a2e;border-radius:16px;padding:22px;text-align:center">' +
+      '<div style="font-size:15px;font-weight:600;margin-bottom:8px;color:#f4f4f5">Abrir no navegador</div>' +
+      '<div style="font-size:13px;color:#a1a1aa;line-height:1.45;margin-bottom:16px">' +
+      (reason ? String(reason) : "Este link precisa abrir fora do app.") +
+      '</div>' +
+      '<button type="button" id="btnExtOpen" style="width:100%;border:0;border-radius:12px;padding:14px 16px;background:#e8b86d;color:#111;font-weight:700;font-size:15px;cursor:pointer">Abrir agora</button>' +
+      '<div style="margin-top:12px;font-size:11px;color:#52525b;word-break:break-all">' + safe + '</div></div>';
     stage.appendChild(box);
-    var b1 = document.getElementById("btnExtOpen");
-    var bHere = document.getElementById("btnExtHere");
-    var b2 = document.getElementById("btnExtCopy");
-    if (b1) b1.onclick = function () { openExternalUrl(url); };
-    if (bHere) bHere.onclick = function () {
-      // navega o WebView inteiro para o site (funciona em quase todo HTML→APK)
-      try { toast("Carregando site…"); } catch (e) {}
-      setTimeout(function () {
-        try { window.location.href = url; } catch (e) {
-          try { window.location.assign(url); } catch (e2) {}
-        }
-      }, 80);
-    };
-    if (b2) b2.onclick = function () {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(function () { toast("Link copiado"); }).catch(function () {
-          prompt("Copie o link:", url);
-        });
-      } else {
-        prompt("Copie o link:", url);
-      }
-    };
+    var b = box.querySelector("#btnExtOpen");
+    if (b) b.onclick = function () { openExternalUrl(url); };
   }
+
   function createIframe(src) {
     var iframe = document.createElement("iframe");
     iframe.setAttribute("allowfullscreen", "true");
@@ -3949,14 +4304,12 @@ label.lbl {
     function autoOpen() {
       if (done) return;
       done = true;
-      try { toast("Site bloqueou o embed · abrindo fora…"); } catch (e) {}
-      // mesma lógica do "Abrir fora" / nesta tela
-      try { $("overlay").classList.remove("open"); } catch (e) {}
-      setTimeout(function () {
-        try { window.location.href = url; } catch (e) {
-          try { openExternalUrl(url); } catch (e2) {}
-        }
-      }, 150);
+      try { toast("Site bloqueou o player · abrindo fora…"); } catch (e) {}
+      try {
+        var stage = $("stage");
+        if (stage) renderExternalCard(stage, url, "O site bloqueou a exibição no app");
+      } catch (e) {}
+      setTimeout(function () { try { openExternalUrl(url); } catch (e) {} }, 60);
     }
     function checkDoc() {
       if (done) return;
@@ -4130,20 +4483,12 @@ label.lbl {
     // 4) Sites que bloqueiam iframe → abre DIRETO nesta tela (sem página intermediária)
     if (isLikelyIframeBlocked(url)) {
       saveHistory(item, label, 0);
-      try { toast("Abrindo site…"); } catch (e) {}
-      // fecha overlay e navega o WebView inteiro
-      try { $("overlay").classList.remove("open"); } catch (e) {}
-      setTimeout(function () {
-        try { window.location.href = url; } catch (e) {
-          try { window.location.assign(url); } catch (e2) {
-            openExternalUrl(url);
-          }
-        }
-      }, 80);
+      renderExternalCard(stage, url, "Este site bloqueia o player dentro do app");
+      setTimeout(function () { openExternalUrl(url); }, 80);
       return;
     }
 
-    // 5) Páginas de player web (Seekee, drives, embeds) e demais sites
+    // 5) Sites seguros de embed (Seekee etc.) → iframe; resto → abrir fora (sem ERR_BLOCKED)
     setNativeControlsVisible(false);
     var webPlayer = isWebPlayerPage(url);
     var isSeekee = false;
@@ -4152,18 +4497,26 @@ label.lbl {
       isSeekee = h.indexOf("seekee") >= 0 || h.indexOf("aiseekee") >= 0;
     } catch (e) {}
 
+    // Só iframe em players conhecidos; streaming/sites comuns → navegador externo
+    if (!webPlayer && !isSeekee) {
+      saveHistory(item, label, 0);
+      renderExternalCard(stage, url, "Este site não permite player embutido");
+      setTimeout(function () { openExternalUrl(url); }, 100);
+      return;
+    }
+
     var wrap = document.createElement("div");
     wrap.style.cssText = "position:absolute;inset:0;display:flex;flex-direction:column;background:#000";
     var bar = document.createElement("div");
     bar.style.cssText = "flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:8px 10px;background:#0c101a;border-bottom:1px solid #243044;font-size:12px;color:#97a3bb";
     var titleSpan = document.createElement("span");
     titleSpan.style.flex = "1";
-    titleSpan.textContent = isSeekee ? "Player Seekee" : (webPlayer ? "Player web" : "Site externo");
+    titleSpan.textContent = isSeekee ? "Player Seekee" : "Player web";
     bar.appendChild(titleSpan);
 
     var btnFs = document.createElement("button");
     btnFs.type = "button";
-    btnFs.textContent = "⛶ Tela cheia";
+    btnFs.textContent = "Tela cheia";
     btnFs.style.cssText = "border:0;border-radius:8px;padding:6px 10px;background:#243049;color:#fff;font-weight:700;cursor:pointer;font-size:12px";
     btnFs.onclick = function () { requestStageFullscreen(); };
     bar.appendChild(btnFs);
@@ -4183,13 +4536,7 @@ label.lbl {
     wrap.appendChild(iframe);
     stage.appendChild(wrap);
 
-    // se o iframe mostrar página de erro (ERR_BLOCKED...), abre fora sozinho
     watchIframeForBlockError(iframe, url);
-
-    // tela cheia automática para sites que NÃO são Seekee
-    if (!isSeekee) {
-      setTimeout(requestStageFullscreen, 250);
-    }
     saveHistory(item, label, 0);
   }
   function getVideo() { return $("nativeVideo"); }
@@ -4467,12 +4814,20 @@ label.lbl {
       file.onchange = function (ev) {
         var f = ev.target.files && ev.target.files[0];
         if (!f) return;
-        var r = new FileReader();
-        r.onload = function () {
-          $("f_poster").value = r.result;
-          $("bannerPreview").src = r.result;
-        };
-        r.readAsDataURL(f);
+        try { toast("Comprimindo capa…"); } catch (e) {}
+        compressImageFile(f, 360, 0.68).then(function (dataUrl) {
+          $("f_poster").value = dataUrl;
+          $("bannerPreview").src = dataUrl;
+          try { toast("Capa pronta (" + Math.round(dataUrl.length / 1024) + " KB)"); } catch (e) {}
+        }).catch(function () {
+          // fallback sem compressão
+          var r = new FileReader();
+          r.onload = function () {
+            $("f_poster").value = r.result;
+            $("bannerPreview").src = r.result;
+          };
+          r.readAsDataURL(f);
+        });
       };
     }
     $("f_poster").oninput = function () { $("bannerPreview").src = $("f_poster").value || ""; };
@@ -4536,8 +4891,20 @@ label.lbl {
       readInto(it);
       it.published = true;
       if (it.id) clearDeletedId(it.id);
-      saveRaw(list, "Publicado no app");
-      renderEditor();
+      function finish() {
+        saveRaw(list, "Publicado no app");
+        renderEditor();
+      }
+      // garante capa leve para ir pro GitHub/outros aparelhos
+      if (it.poster && it.poster.indexOf("data:image") === 0 && it.poster.length > 60000) {
+        try { toast("Otimizando capa…"); } catch (e) {}
+        compressDataUrl(it.poster, 360, 0.65).then(function (p) {
+          it.poster = p;
+          finish();
+        }).catch(function () { finish(); });
+      } else {
+        finish();
+      }
     };
     $("btnDraft").onclick = function () {
       var list = loadRaw();
@@ -4546,8 +4913,18 @@ label.lbl {
       if (!it) return;
       readInto(it);
       it.published = false;
-      saveRaw(list, "Rascunho salvo");
-      renderEditor();
+      function finish() {
+        saveRaw(list, "Rascunho salvo");
+        renderEditor();
+      }
+      if (it.poster && it.poster.indexOf("data:image") === 0 && it.poster.length > 60000) {
+        compressDataUrl(it.poster, 360, 0.65).then(function (p) {
+          it.poster = p;
+          finish();
+        }).catch(function () { finish(); });
+      } else {
+        finish();
+      }
     };
     $("btnDelete").onclick = function () {
       if (!confirm("Excluir? Some do app de filmes.")) return;
@@ -4632,7 +5009,7 @@ label.lbl {
           var lite = list.map(function (it) {
             var o = {};
             for (var k in it) if (Object.prototype.hasOwnProperty.call(it, k)) o[k] = it[k];
-            if (o.poster && typeof o.poster === "string" && o.poster.indexOf("data:") === 0 && o.poster.length > 4000) {
+            if (o.poster && typeof o.poster === "string" && o.poster.indexOf("data:") === 0 && o.poster.length > 120000) {
               o.poster = "";
             }
             return o;
@@ -4672,7 +5049,7 @@ label.lbl {
         var ch = source.charAt(j);
         if (inStr) {
           if (esc) { esc = false; continue; }
-          if (ch === "\\") { esc = true; continue; }
+          if (ch === "\") { esc = true; continue; }
           if (ch === strQ) inStr = false;
           continue;
         }
@@ -4835,7 +5212,7 @@ label.lbl {
     var lite = catList.map(function (it) {
       var o = {};
       for (var k in it) if (Object.prototype.hasOwnProperty.call(it, k)) o[k] = it[k];
-      if (o.poster && typeof o.poster === "string" && o.poster.indexOf("data:") === 0 && o.poster.length > 4000) {
+      if (o.poster && typeof o.poster === "string" && o.poster.indexOf("data:") === 0 && o.poster.length > 120000) {
         o.poster = "";
         o._posterOmitted = true;
       }
@@ -4878,7 +5255,7 @@ label.lbl {
       return;
     }
     window.__cineTungCopying = true;
-    try { toast("Montando HTML completo do Cine Tung…"); } catch (e) {}
+    try { toast("Preparando…"); } catch (e) {}
 
     var emb = buildEmbeddedBlock();
     var textToCopy = "";
@@ -4894,10 +5271,16 @@ label.lbl {
       if (html && html.length > 3000) {
         // embute catálogo/mensagens atuais
         try { html = bakeEmbeddedIntoHtmlSource(html); } catch (e) {}
+        // export sempre no modo espectador (evita outros aparelhos abrirem no Criador)
+        try {
+          html = html.replace(/id="adminApp" class="on"/g, 'id="adminApp" class=""');
+          html = html.replace(/id="viewApp" class=""/g, 'id="viewApp" class="on"');
+          html = html.replace(/id="viewApp" class=''/g, 'id="viewApp" class="on"');
+        } catch (e) {}
 
         // remove data:image enormes que sobraram em qualquer lugar (senão clipboard zera)
         try {
-          html = html.replace(/data:image\/[a-zA-Z0-9+.-]+;base64,[A-Za-z0-9+\/=]{500,}/g, "");
+          html = html.replace(/data:image\/[a-zA-Z0-9+.-]+;base64,[A-Za-z0-9+\/=]{150000,}/g, "");
         } catch (e) {}
 
         // garante que o bloco EMBEDDED do bake (já lite) está presente
@@ -5145,10 +5528,18 @@ label.lbl {
     };
   }
 
-  // ao voltar pro app / foco → atualiza catálogo
+  // ao voltar pro app / foco → puxa catálogo do GitHub + redesenha
   function onAppActive() {
     if ($("viewApp").classList.contains("on")) {
-      try { renderGrid(); } catch (e) {}
+      try {
+        pullCatalogFromGitHub(true).then(function () {
+          try { renderGrid(); } catch (e) {}
+        }).catch(function () {
+          try { renderGrid(); } catch (e) {}
+        });
+      } catch (e) {
+        try { renderGrid(); } catch (e2) {}
+      }
     }
   }
   document.addEventListener("visibilitychange", function () {
@@ -5165,13 +5556,36 @@ label.lbl {
   try { showViewer(); } catch (e) {
     try { $("viewApp").classList.add("on"); $("adminApp").classList.remove("on"); } catch (e2) {}
   }
+  // nunca inicia no modo criador (HTML exportado às vezes vem com admin ligado)
+  try {
+    $("adminApp").classList.remove("on");
+    $("viewApp").classList.add("on");
+    localStorage.setItem("cinetung_ui", "viewer");
+  } catch (e) {}
+  // ao voltar de site externo, garante viewer
+  try {
+    window.addEventListener("pageshow", function () {
+      try {
+        if ($("adminApp") && $("adminApp").classList.contains("on") && !$("crownGate").classList.contains("open")) {
+          // se não passou pela coroa nesta sessão, força viewer
+          if (!window.__cineAdminUnlocked) showViewer();
+        }
+      } catch (e) {}
+    });
+  } catch (e) {}
   try { runSplash(); } catch (e) {
     try { endSplash(); } catch (e2) {}
   }
   // segurança: tira splash no máximo em 4s
   setTimeout(function () { try { endSplash(); } catch (e) {} }, 4000);
-  /* pullCatalog desativado (sem GitHub) */
-  /* auto-sync GitHub desativado */
+  // Sync automático com GitHub (HTML completo ou catalog.json)
+  try {
+    setTimeout(function () {
+      pullCatalogFromGitHub(true).then(function (changed) {
+        if (changed) { try { renderGrid(); } catch (e) {} }
+      }).catch(function () {});
+    }, 1200);
+  } catch (e) {}
 })();
 </script>
 
