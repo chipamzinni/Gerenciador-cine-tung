@@ -2437,7 +2437,7 @@ textarea#msgText, #msgText {
 
 /* crown gate */
 #crownGate {
-  display: none; position: fixed; inset: 0; z-index: 80;
+  display: none; position: fixed; inset: 0; z-index: 400;
   background: rgba(0,0,0,.65);
   align-items: center; justify-content: center; padding: 16px;
   backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
@@ -3968,12 +3968,14 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
     loadProfileUI();
   }
   function showAdmin() {
+    window.__cineAdminUnlocked = true;
     $("viewApp").classList.remove("on");
     $("adminApp").classList.add("on");
+    try { $("adminApp").style.display = "block"; } catch (e) {}
     localStorage.setItem("cinetung_ui", "admin");
     catalog = loadRaw();
-    renderAdminList();
-    renderEditor();
+    try { renderAdminList(); } catch (e) {}
+    try { renderEditor(); } catch (e) {}
   }
 
   /* crown gate */
@@ -4145,7 +4147,10 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
   function clearBgImage() {
     try {
       document.body.style.backgroundImage = "";
-      document.documentElement.style.backgroundImage = "";
+      document.body.style.backgroundSize = "";
+      document.body.style.backgroundPosition = "";
+      document.body.style.backgroundAttachment = "";
+      document.body.style.backgroundRepeat = "";
       localStorage.removeItem(BG_IMAGE_KEY);
     } catch (e) {}
   }
@@ -4160,18 +4165,30 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
   function applyBgImage(dataUrl) {
     if (!dataUrl) return;
     try {
-      document.body.style.backgroundImage = "url('" + dataUrl.replace(/'/g, "%27") + "')";
-      document.body.style.backgroundSize = "cover";
-      document.body.style.backgroundPosition = "center";
-      document.body.style.backgroundAttachment = "fixed";
+      // fundo profissional: imagem cobrindo a tela + vinheta escura por cima (legibilidade)
+      var safe = String(dataUrl).replace(/'/g, "%27").replace(/\n/g, "");
       document.body.style.backgroundColor = "#0a0a0b";
-      localStorage.setItem(BG_IMAGE_KEY, dataUrl);
-    } catch (e) {
+      document.body.style.backgroundImage =
+        "linear-gradient(180deg, rgba(8,8,10,.72) 0%, rgba(8,8,10,.55) 40%, rgba(8,8,10,.82) 100%), url('" + safe + "')";
+      document.body.style.backgroundSize = "cover, cover";
+      document.body.style.backgroundPosition = "center, center";
+      document.body.style.backgroundRepeat = "no-repeat, no-repeat";
+      document.body.style.backgroundAttachment = "fixed, fixed";
       try {
-        // se base64 grande estourar quota, avisa
-        toast("Imagem grande demais para salvar");
-      } catch (e2) {}
-    }
+        localStorage.setItem(BG_IMAGE_KEY, dataUrl);
+      } catch (e) {
+        // tenta versão ainda menor
+        try {
+          compressDataUrl(dataUrl, 480, 0.4).then(function (small) {
+            try { localStorage.setItem(BG_IMAGE_KEY, small); } catch (e2) {
+              try { toast("Sem espaço para salvar o fundo"); } catch (e3) {}
+            }
+          });
+        } catch (e2) {
+          try { toast("Sem espaço para salvar o fundo"); } catch (e3) {}
+        }
+      }
+    } catch (e) {}
   }
   function loadTheme() {
     try {
@@ -4529,8 +4546,12 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
   function setNativeControlsVisible(show) {
     var play = $("btnPlay");
     var speedWrap = $("speed") && $("speed").parentElement;
+    var fs = $("btnFs");
+    var ctrl = document.querySelector("#overlay .ctrl");
     if (play) play.style.display = show ? "" : "none";
     if (speedWrap) speedWrap.style.display = show ? "" : "none";
+    if (fs) fs.style.display = show ? "" : "none";
+    if (ctrl) ctrl.style.display = show ? "" : "none";
   }
   function saveHistory(item, label, seconds) {
     try {
@@ -5815,25 +5836,26 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
 
   function recoverAppUi() {
     try {
-      // tira splash residual
       var sp = document.getElementById("splash");
       if (sp) {
         try { sp.classList.add("hide"); sp.classList.add("gone"); sp.style.display = "none"; sp.style.pointerEvents = "none"; } catch (e) {}
         try { if (sp.parentNode) sp.parentNode.removeChild(sp); } catch (e) {}
       }
-      // garante viewer
-      var admin = document.getElementById("adminApp");
-      var view = document.getElementById("viewApp");
-      if (admin) admin.classList.remove("on");
-      if (view) {
-        view.classList.add("on");
-        view.style.display = "block";
-        view.style.visibility = "visible";
-        view.style.opacity = "1";
+      // NÃO expulsa o criador se já desbloqueou
+      if (!window.__cineAdminUnlocked) {
+        var admin = document.getElementById("adminApp");
+        var view = document.getElementById("viewApp");
+        if (admin && admin.classList.contains("on") && !$("crownGate").classList.contains("open")) {
+          // só volta pro viewer se caiu em estado estranho sem unlock
+        }
+        if (view) {
+          view.style.visibility = "visible";
+          view.style.opacity = "1";
+        }
       }
-      document.body.style.background = "#000";
-      try { showViewer(); } catch (e) {}
-      try { renderGrid(); } catch (e) {}
+      // restaura fundo (nunca força #000)
+      try { loadTheme(); } catch (e) {}
+      try { if ($("viewApp") && $("viewApp").classList.contains("on")) renderGrid(); } catch (e) {}
     } catch (e) {}
   }
   window.addEventListener("pageshow", function () {
