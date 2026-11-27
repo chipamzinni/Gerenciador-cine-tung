@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" style="--bg: #000000;"><head><script>window.__CINE_TUNG_FROM_REMOTE__=1;window.__CINE_TUNG_APP__=1;</script>
+<html lang="pt-BR" style="--bg: #000000; --card-min: 148px;"><head><script>window.__CINE_TUNG_FROM_REMOTE__=1;window.__CINE_TUNG_APP__=1;<\/script><script>window.__CINE_TUNG_FROM_REMOTE__=1;window.__CINE_TUNG_APP__=1;</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <script>
@@ -1034,8 +1034,8 @@ display: flex; align-items: center; justify-content: center;height: 100%; color:
 }
 </style>
 </head>
-<body style="background-color:#0a0a0b;" class="">
-<div id="appBg" aria-hidden="true" style="background-color: rgb(10, 10, 11); background-image: linear-gradient(rgba(8, 8, 10, 0.75) 0%, rgba(8, 8, 10, 0.5) 45%, rgba(8, 8, 10, 0.85) 100%), url(); background-size: cover, cover; background-position: center center, center center; background-repeat: no-repeat, no-repeat; pointer-events: none;"></div>
+<body style="background-color: rgb(10, 10, 11); pointer-events: auto;" class="">
+<div id="appBg"></div>
 
 <!-- OBLIRY INTRO -->
 <style id="obliryIntroCss">
@@ -1099,16 +1099,7 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
 }
 </style>
 
-<div id="splash" class="obliry-splash">
-  <div class="ob-stage">
-    <div class="ob-word">
-      <span class="ob-letter">O</span><span class="ob-letter">B</span><span class="ob-letter">L</span><span class="ob-letter">I</span><span class="ob-letter">R</span><span class="ob-letter">Y</span>
-      <div class="ob-hole"></div>
-    </div>
-    <div class="ob-credit">Feito por Raphael Rocha</div>
-  </div>
-  <div class="ob-vignette"></div>
-</div>
+
 
 <script>
 (function () {
@@ -1296,7 +1287,7 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
 </script>
 
 <!-- ========== VIEWER ========== -->
-<div id="viewApp" class="on">
+<div id="viewApp" class="on" style="display: none; visibility: visible; opacity: 1;">
   <div class="top">
     <div class="top-row">
       <div class="brand">Cine <span>Tung</span></div>
@@ -1315,27 +1306,27 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
   <main class="view-main">
     <section class="page active" id="page-lib">
       <h1 class="page-title">Biblioteca</h1>
-      <p class="muted" id="syncInfo">11 título(s) · 22/11/2026, 16:40:01</p>
+      <p class="muted" id="syncInfo">27 título(s) · 27/11/2026, 20:37:23</p>
       <div class="genre-filter-bar"><span class="chip-active" id="genreLabelLib">Gênero: Todos</span></div>
       <div class="home-hero" id="homeHero" aria-label="Destaques">
-        <div class="home-hero-track" id="homeHeroTrack"></div>
-        <div class="home-hero-dots" id="homeHeroDots"></div>
+        <div class="home-hero-track" id="homeHeroTrack" style="transform: translateX(0%);"><div class="home-hero-slide" style="background-image: url(&quot;https://cdn.discordapp.com/attachments/1576013342332420336/1576014097961455736/images_72.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=c70d03a2b6f9ce406b8084c9d57344c986e5682a6bbb66df8b4108166956f67b&amp;&quot;); background-size: cover; background-position: center center;"><img class="home-hero-img" src="https://cdn.discordapp.com/attachments/1576013342332420336/1576014097961455736/images_72.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=c70d03a2b6f9ce406b8084c9d57344c986e5682a6bbb66df8b4108166956f67b&amp;" alt="" loading="lazy"><div class="cap">Um filme minecraft</div></div><div class="home-hero-slide" style="background-image: url(&quot;https://cdn.discordapp.com/attachments/1576013342332420336/1576015057572077678/images_77.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=20ccaa2caf5989a789c5100a2940579ac93efba30621dba65a9d7235279215f9&amp;&quot;); background-size: cover; background-position: center center;"><img class="home-hero-img" src="https://cdn.discordapp.com/attachments/1576013342332420336/1576015057572077678/images_77.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=20ccaa2caf5989a789c5100a2940579ac93efba30621dba65a9d7235279215f9&amp;" alt="" loading="lazy"><div class="cap">Coco: a vida é uma festa</div></div><div class="home-hero-slide" style="background-image: url(&quot;https://cdn.discordapp.com/attachments/1576013342332420336/1576015058054545500/images_78.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=5f06858cb070670df8aa1ddf0ead49584515165cc3db9efc288d2b4854e96cda&amp;&quot;); background-size: cover; background-position: center center;"><img class="home-hero-img" src="https://cdn.discordapp.com/attachments/1576013342332420336/1576015058054545500/images_78.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=5f06858cb070670df8aa1ddf0ead49584515165cc3db9efc288d2b4854e96cda&amp;" alt="" loading="lazy"><div class="cap">Coringa</div></div><div class="home-hero-slide" style="background-image: url(&quot;https://cdn.discordapp.com/attachments/1576013342332420336/1576015056964030564/images_76.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=cbc0dfd5f1f569a54a62848d902779023f7133891e1027fcd3cdb6951e069adc&amp;&quot;); background-size: cover; background-position: center center;"><img class="home-hero-img" src="https://cdn.discordapp.com/attachments/1576013342332420336/1576015056964030564/images_76.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=cbc0dfd5f1f569a54a62848d902779023f7133891e1027fcd3cdb6951e069adc&amp;" alt="" loading="lazy"><div class="cap">Círculo de fogo</div></div><div class="home-hero-slide" style="background-image: url(&quot;https://cdn.discordapp.com/attachments/1576013342332420336/1576015056565567659/images_75.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=90a50f26ac47a0aa119f9d9db711c7965c3c8d81b55820881022d94017fdca42&amp;&quot;); background-size: cover; background-position: center center;"><img class="home-hero-img" src="https://cdn.discordapp.com/attachments/1576013342332420336/1576015056565567659/images_75.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=90a50f26ac47a0aa119f9d9db711c7965c3c8d81b55820881022d94017fdca42&amp;" alt="" loading="lazy"><div class="cap">Gigantes de aço</div></div><div class="home-hero-slide" style="background-image: url(&quot;https://cdn.discordapp.com/attachments/1576013342332420336/1576014098607636661/images_74.jpg?ex=6b0b6102&amp;is=6b0a0f82&amp;hm=a60029b3e63fecc5ca932eb278033f95a7a89457e87034b7c4035f1cb1cde312&amp;&quot;); background-size: cover; background-position: center center;"><img class="home-hero-img" src="https://cdn.discordapp.com/attachments/1576013342332420336/1576014098607636661/images_74.jpg?ex=6b0b6102&amp;is=6b0a0f82&amp;hm=a60029b3e63fecc5ca932eb278033f95a7a89457e87034b7c4035f1cb1cde312&amp;" alt="" loading="lazy"><div class="cap">Avatar</div></div></div>
+        <div class="home-hero-dots" id="homeHeroDots"><span class="on"></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span></div>
         <button type="button" class="home-hero-nav prev" id="homeHeroPrev" aria-label="Anterior">‹</button>
         <button type="button" class="home-hero-nav next" id="homeHeroNext" aria-label="Próximo">›</button>
       </div>
-      <div class="grid" id="grid-lib"><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>A Noiva Cadáver</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>Os Croods</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>Angry Birds Movie</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>Verity</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>Dexter</b><small>Série</small><div class="badge">Série</div></div></div><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>Sonic : O filme</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>Cruella</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>Coraline e a Porta secreta</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>One Piece</b><small>Série</small><div class="badge">Série</div></div></div><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>Homem-aranha: Um novo dia</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>JURASSIC WORLD</b><small>Filme</small><div class="badge">Completo</div></div></div></div>
+      <div class="grid" id="grid-lib"><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576014097961455736/images_72.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=c70d03a2b6f9ce406b8084c9d57344c986e5682a6bbb66df8b4108166956f67b&amp;')"></div><div class="info"><b>Um filme minecraft</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576015057572077678/images_77.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=20ccaa2caf5989a789c5100a2940579ac93efba30621dba65a9d7235279215f9&amp;')"></div><div class="info"><b>Coco: a vida é uma festa</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576015058054545500/images_78.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=5f06858cb070670df8aa1ddf0ead49584515165cc3db9efc288d2b4854e96cda&amp;')"></div><div class="info"><b>Coringa</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576015056964030564/images_76.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=cbc0dfd5f1f569a54a62848d902779023f7133891e1027fcd3cdb6951e069adc&amp;')"></div><div class="info"><b>Círculo de fogo</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576015056565567659/images_75.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=90a50f26ac47a0aa119f9d9db711c7965c3c8d81b55820881022d94017fdca42&amp;')"></div><div class="info"><b>Gigantes de aço</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576014098607636661/images_74.jpg?ex=6b0b6102&amp;is=6b0a0f82&amp;hm=a60029b3e63fecc5ca932eb278033f95a7a89457e87034b7c4035f1cb1cde312&amp;')"></div><div class="info"><b>Avatar</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576014098284679178/images_73.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=5a9cc0907838798443174240f2ee5b13ded34d413cbee16ad7a9768cb73a7c63&amp;')"></div><div class="info"><b>Era do gelo</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576014097626038282/images_71.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=454bfe30356ada68ec2e05deadf31a2c3f90f9e5ae95511616250e4129cfba5b&amp;')"></div><div class="info"><b>Wandinha</b><small>Série</small><div class="badge">Série</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576014097022193856/images_69.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=b9732cea7b559a47fd2988f6a568e5f19dff30eaa491a7520518422bafa9de1a&amp;')"></div><div class="info"><b>Resident Evil</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576014096669737091/images_68.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=f821e5f536d8888dcdde41d2a0766260fb71787345bbfaed8753953f210af526&amp;')"></div><div class="info"><b>Em ritmo de fuga</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576014096313229553/images_67.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=d2b843e63f070d7bead05ea4ae5bed57f8fc6bce225fcffe0f831420935df74e&amp;')"></div><div class="info"><b>Big pai, big filho</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576014095956578386/images_66.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=a0f5d38553952f42c2e2871be89ef89e71dce80a4473b2caf28336069bbbfd85&amp;')"></div><div class="info"><b>Tipo irmãs</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576013918516678657/images_65.jpg?ex=6b0b60d7&amp;is=6b0a0f57&amp;hm=b89c52b721b93636325cb25cdabad427aeb953b057465338fc590e00b6a63edc&amp;')"></div><div class="info"><b>Backrooms: Um não lugar</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576013622423851088/images_64.jpg?ex=6b0b6090&amp;is=6b0a0f10&amp;hm=b361822615f14ee03a3695c41d8b3fe09dde25bd0eb98d83905901125d6125c5&amp;')"></div><div class="info"><b>Carros 2006 pixar</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/pt/3/3a/Interstellar_Filme.png')"></div><div class="info"><b>Interestelar</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/pt/9/9b/Avengers_Endgame.jpg')"></div><div class="info"><b>Vingadores: Ultimato</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/a/a6/Corpse_Bride_film_poster.jpg')"></div><div class="info"><b>A Noiva Cadáver</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/6/63/The_Croods.png')"></div><div class="info"><b>Os Croods</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/f/f9/The_Angry_Birds_Movie_poster.png')"></div><div class="info"><b>Angry Birds Movie</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/6/60/Verity_poster.jpg')"></div><div class="info"><b>Verity</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Dexter_Logo.svg/1920px-Dexter_Logo.svg.png')"></div><div class="info"><b>Dexter</b><small>Série</small><div class="badge">Série</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/4/45/Sonic_the_Hedgehog_film_poster.jpg')"></div><div class="info"><b>Sonic : O filme</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/f/f6/Cruella_2021_film_poster.jpg')"></div><div class="info"><b>Cruella</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/3/36/Coraline_poster.jpg')"></div><div class="info"><b>Coraline e a Porta secreta</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/3/3f/One_Piece_Eternal_Log_-_East_Blue.png')"></div><div class="info"><b>One Piece</b><small>Série</small><div class="badge">Série</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/9/9a/Spider-Man_Brand_New_Day_poster.jpg')"></div><div class="info"><b>Homem-aranha: Um novo dia</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/6/6e/Jurassic_World_poster.jpg')"></div><div class="info"><b>JURASSIC WORLD</b><small>Filme</small><div class="badge">Completo</div></div></div></div>
       <div class="empty" id="empty-lib" style="display: none;">Nenhum título nesta aba.</div>
     </section>
     <section class="page" id="page-movies">
       <h1 class="page-title">Filmes</h1>
       <div class="genre-filter-bar"><span class="chip-active" id="genreLabelMovies">Gênero: Todos</span></div>
-      <div class="grid" id="grid-movies"><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>A Noiva Cadáver</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>Os Croods</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>Angry Birds Movie</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>Verity</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>Sonic : O filme</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>Cruella</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>Coraline e a Porta secreta</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>Homem-aranha: Um novo dia</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>JURASSIC WORLD</b><small>Filme</small><div class="badge">Completo</div></div></div></div>
+      <div class="grid" id="grid-movies"><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576014097961455736/images_72.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=c70d03a2b6f9ce406b8084c9d57344c986e5682a6bbb66df8b4108166956f67b&amp;')"></div><div class="info"><b>Um filme minecraft</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576015057572077678/images_77.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=20ccaa2caf5989a789c5100a2940579ac93efba30621dba65a9d7235279215f9&amp;')"></div><div class="info"><b>Coco: a vida é uma festa</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576015058054545500/images_78.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=5f06858cb070670df8aa1ddf0ead49584515165cc3db9efc288d2b4854e96cda&amp;')"></div><div class="info"><b>Coringa</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576015056964030564/images_76.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=cbc0dfd5f1f569a54a62848d902779023f7133891e1027fcd3cdb6951e069adc&amp;')"></div><div class="info"><b>Círculo de fogo</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576015056565567659/images_75.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=90a50f26ac47a0aa119f9d9db711c7965c3c8d81b55820881022d94017fdca42&amp;')"></div><div class="info"><b>Gigantes de aço</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576014098607636661/images_74.jpg?ex=6b0b6102&amp;is=6b0a0f82&amp;hm=a60029b3e63fecc5ca932eb278033f95a7a89457e87034b7c4035f1cb1cde312&amp;')"></div><div class="info"><b>Avatar</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576014098284679178/images_73.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=5a9cc0907838798443174240f2ee5b13ded34d413cbee16ad7a9768cb73a7c63&amp;')"></div><div class="info"><b>Era do gelo</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576014097022193856/images_69.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=b9732cea7b559a47fd2988f6a568e5f19dff30eaa491a7520518422bafa9de1a&amp;')"></div><div class="info"><b>Resident Evil</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576014096669737091/images_68.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=f821e5f536d8888dcdde41d2a0766260fb71787345bbfaed8753953f210af526&amp;')"></div><div class="info"><b>Em ritmo de fuga</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576014096313229553/images_67.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=d2b843e63f070d7bead05ea4ae5bed57f8fc6bce225fcffe0f831420935df74e&amp;')"></div><div class="info"><b>Big pai, big filho</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576014095956578386/images_66.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=a0f5d38553952f42c2e2871be89ef89e71dce80a4473b2caf28336069bbbfd85&amp;')"></div><div class="info"><b>Tipo irmãs</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576013918516678657/images_65.jpg?ex=6b0b60d7&amp;is=6b0a0f57&amp;hm=b89c52b721b93636325cb25cdabad427aeb953b057465338fc590e00b6a63edc&amp;')"></div><div class="info"><b>Backrooms: Um não lugar</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576013622423851088/images_64.jpg?ex=6b0b6090&amp;is=6b0a0f10&amp;hm=b361822615f14ee03a3695c41d8b3fe09dde25bd0eb98d83905901125d6125c5&amp;')"></div><div class="info"><b>Carros 2006 pixar</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/pt/3/3a/Interstellar_Filme.png')"></div><div class="info"><b>Interestelar</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/pt/9/9b/Avengers_Endgame.jpg')"></div><div class="info"><b>Vingadores: Ultimato</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/a/a6/Corpse_Bride_film_poster.jpg')"></div><div class="info"><b>A Noiva Cadáver</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/6/63/The_Croods.png')"></div><div class="info"><b>Os Croods</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/f/f9/The_Angry_Birds_Movie_poster.png')"></div><div class="info"><b>Angry Birds Movie</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/6/60/Verity_poster.jpg')"></div><div class="info"><b>Verity</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/4/45/Sonic_the_Hedgehog_film_poster.jpg')"></div><div class="info"><b>Sonic : O filme</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/f/f6/Cruella_2021_film_poster.jpg')"></div><div class="info"><b>Cruella</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/3/36/Coraline_poster.jpg')"></div><div class="info"><b>Coraline e a Porta secreta</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/9/9a/Spider-Man_Brand_New_Day_poster.jpg')"></div><div class="info"><b>Homem-aranha: Um novo dia</b><small>Filme</small><div class="badge">Completo</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/6/6e/Jurassic_World_poster.jpg')"></div><div class="info"><b>JURASSIC WORLD</b><small>Filme</small><div class="badge">Completo</div></div></div></div>
       <div class="empty" id="empty-movies" style="display: none;">Nenhum título nesta aba.</div>
     </section>
     <section class="page" id="page-series">
       <h1 class="page-title">Séries</h1>
       <div class="genre-filter-bar"><span class="chip-active" id="genreLabelSeries">Gênero: Todos</span></div>
-      <div class="grid" id="grid-series"><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>Dexter</b><small>Série</small><div class="badge">Série</div></div></div><div class="card"><div class="poster" style="background-image:url("")"></div><div class="info"><b>One Piece</b><small>Série</small><div class="badge">Série</div></div></div></div>
+      <div class="grid" id="grid-series"><div class="card"><div class="poster" style="background-image:url('https://cdn.discordapp.com/attachments/1576013342332420336/1576014097626038282/images_71.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=454bfe30356ada68ec2e05deadf31a2c3f90f9e5ae95511616250e4129cfba5b&amp;')"></div><div class="info"><b>Wandinha</b><small>Série</small><div class="badge">Série</div></div></div><div class="card"><div class="poster" style="background-image:url('https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Dexter_Logo.svg/1920px-Dexter_Logo.svg.png')"></div><div class="info"><b>Dexter</b><small>Série</small><div class="badge">Série</div></div></div><div class="card"><div class="poster" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/3/3f/One_Piece_Eternal_Log_-_East_Blue.png')"></div><div class="info"><b>One Piece</b><small>Série</small><div class="badge">Série</div></div></div></div>
       <div class="empty" id="empty-series" style="display: none;">Nenhum título nesta aba.</div>
     </section>
     <section class="page" id="page-profile">
@@ -1361,7 +1352,7 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
   <div id="apkWatermarkMask" aria-hidden="true"></div>
 </main>
 
-<nav class="bottom-nav" id="bottomNav" style="pointer-events: auto;">
+<nav class="bottom-nav" id="bottomNav" style="pointer-events: auto; opacity: 1; z-index: 100;">
     <button type="button" class="active" data-tab="lib"><span class="sym ico-lib"></span>Biblioteca</button>
     <button type="button" data-tab="movies"><span class="sym ico-movie"></span>Filmes</button>
     <button type="button" data-tab="series"><span class="sym ico-series"></span>Séries</button>
@@ -1420,7 +1411,7 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
 </div>
 
 <!-- ========== ADMIN ========== -->
-<div id="adminApp" class="">
+<div id="adminApp" class="" style="display: block;">
   <div class="admin-header">
     <div class="brand">Cine <span>Tung</span> · Criador</div>
     <div class="btns" style="margin:0">
@@ -1438,11 +1429,9 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
         <button class="btn small secondary" type="button" id="btnNewSeries">+ Série</button>
       </div>
       <div style="height:12px"></div>
-      <div class="list" id="adminList"><div class="item"><img src="" alt=""><div class="meta"><b>A Noiva Cadáver</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>Os Croods</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>Angry Birds Movie</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>Verity</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>Dexter</b><small class="muted">AO AR · Série</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>Sonic : O filme</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>Cruella</b><small class="muted">AO AR · Filme</small></div></div><div class="item active"><img src="" alt=""><div class="meta"><b>Coraline e a Porta secreta</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>One Piece</b><small class="muted">AO AR · Série</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>Homem-aranha: Um novo dia</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>JURASSIC WORLD</b><small class="muted">AO AR · Filme</small></div></div></div>
+      <div class="list" id="adminList"><div class="item"><img src="https://cdn.discordapp.com/attachments/1576013342332420336/1576014097961455736/images_72.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=c70d03a2b6f9ce406b8084c9d57344c986e5682a6bbb66df8b4108166956f67b&amp;" alt=""><div class="meta"><b>Um filme minecraft</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://cdn.discordapp.com/attachments/1576013342332420336/1576015057572077678/images_77.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=20ccaa2caf5989a789c5100a2940579ac93efba30621dba65a9d7235279215f9&amp;" alt=""><div class="meta"><b>Coco: a vida é uma festa</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://cdn.discordapp.com/attachments/1576013342332420336/1576015058054545500/images_78.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=5f06858cb070670df8aa1ddf0ead49584515165cc3db9efc288d2b4854e96cda&amp;" alt=""><div class="meta"><b>Coringa</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://cdn.discordapp.com/attachments/1576013342332420336/1576015056964030564/images_76.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=cbc0dfd5f1f569a54a62848d902779023f7133891e1027fcd3cdb6951e069adc&amp;" alt=""><div class="meta"><b>Círculo de fogo</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://cdn.discordapp.com/attachments/1576013342332420336/1576015056565567659/images_75.jpg?ex=6b0b61e6&amp;is=6b0a1066&amp;hm=90a50f26ac47a0aa119f9d9db711c7965c3c8d81b55820881022d94017fdca42&amp;" alt=""><div class="meta"><b>Gigantes de aço</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://cdn.discordapp.com/attachments/1576013342332420336/1576014098607636661/images_74.jpg?ex=6b0b6102&amp;is=6b0a0f82&amp;hm=a60029b3e63fecc5ca932eb278033f95a7a89457e87034b7c4035f1cb1cde312&amp;" alt=""><div class="meta"><b>Avatar</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://cdn.discordapp.com/attachments/1576013342332420336/1576014098284679178/images_73.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=5a9cc0907838798443174240f2ee5b13ded34d413cbee16ad7a9768cb73a7c63&amp;" alt=""><div class="meta"><b>Era do gelo</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://cdn.discordapp.com/attachments/1576013342332420336/1576014097626038282/images_71.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=454bfe30356ada68ec2e05deadf31a2c3f90f9e5ae95511616250e4129cfba5b&amp;" alt=""><div class="meta"><b>Wandinha</b><small class="muted">AO AR · Série</small></div></div><div class="item"><img src="https://cdn.discordapp.com/attachments/1576013342332420336/1576014097022193856/images_69.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=b9732cea7b559a47fd2988f6a568e5f19dff30eaa491a7520518422bafa9de1a&amp;" alt=""><div class="meta"><b>Resident Evil</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://cdn.discordapp.com/attachments/1576013342332420336/1576014096669737091/images_68.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=f821e5f536d8888dcdde41d2a0766260fb71787345bbfaed8753953f210af526&amp;" alt=""><div class="meta"><b>Em ritmo de fuga</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://cdn.discordapp.com/attachments/1576013342332420336/1576014096313229553/images_67.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=d2b843e63f070d7bead05ea4ae5bed57f8fc6bce225fcffe0f831420935df74e&amp;" alt=""><div class="meta"><b>Big pai, big filho</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://cdn.discordapp.com/attachments/1576013342332420336/1576014095956578386/images_66.jpg?ex=6b0b6101&amp;is=6b0a0f81&amp;hm=a0f5d38553952f42c2e2871be89ef89e71dce80a4473b2caf28336069bbbfd85&amp;" alt=""><div class="meta"><b>Tipo irmãs</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://cdn.discordapp.com/attachments/1576013342332420336/1576013918516678657/images_65.jpg?ex=6b0b60d7&amp;is=6b0a0f57&amp;hm=b89c52b721b93636325cb25cdabad427aeb953b057465338fc590e00b6a63edc&amp;" alt=""><div class="meta"><b>Backrooms: Um não lugar</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://cdn.discordapp.com/attachments/1576013342332420336/1576013622423851088/images_64.jpg?ex=6b0b6090&amp;is=6b0a0f10&amp;hm=b361822615f14ee03a3695c41d8b3fe09dde25bd0eb98d83905901125d6125c5&amp;" alt=""><div class="meta"><b>Carros 2006 pixar</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://upload.wikimedia.org/wikipedia/pt/3/3a/Interstellar_Filme.png" alt=""><div class="meta"><b>Interestelar</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://upload.wikimedia.org/wikipedia/pt/9/9b/Avengers_Endgame.jpg" alt=""><div class="meta"><b>Vingadores: Ultimato</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://upload.wikimedia.org/wikipedia/en/a/a6/Corpse_Bride_film_poster.jpg" alt=""><div class="meta"><b>A Noiva Cadáver</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://upload.wikimedia.org/wikipedia/en/6/63/The_Croods.png" alt=""><div class="meta"><b>Os Croods</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://upload.wikimedia.org/wikipedia/en/f/f9/The_Angry_Birds_Movie_poster.png" alt=""><div class="meta"><b>Angry Birds Movie</b><small class="muted">AO AR · Filme</small></div></div><div class="item active"><img src="https://upload.wikimedia.org/wikipedia/en/6/60/Verity_poster.jpg" alt=""><div class="meta"><b>Verity</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Dexter_Logo.svg/1920px-Dexter_Logo.svg.png" alt=""><div class="meta"><b>Dexter</b><small class="muted">AO AR · Série</small></div></div><div class="item"><img src="https://upload.wikimedia.org/wikipedia/en/4/45/Sonic_the_Hedgehog_film_poster.jpg" alt=""><div class="meta"><b>Sonic : O filme</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://upload.wikimedia.org/wikipedia/en/f/f6/Cruella_2021_film_poster.jpg" alt=""><div class="meta"><b>Cruella</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://upload.wikimedia.org/wikipedia/en/3/36/Coraline_poster.jpg" alt=""><div class="meta"><b>Coraline e a Porta secreta</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://upload.wikimedia.org/wikipedia/en/3/3f/One_Piece_Eternal_Log_-_East_Blue.png" alt=""><div class="meta"><b>One Piece</b><small class="muted">AO AR · Série</small></div></div><div class="item"><img src="https://upload.wikimedia.org/wikipedia/en/9/9a/Spider-Man_Brand_New_Day_poster.jpg" alt=""><div class="meta"><b>Homem-aranha: Um novo dia</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="https://upload.wikimedia.org/wikipedia/en/6/6e/Jurassic_World_poster.jpg" alt=""><div class="meta"><b>JURASSIC WORLD</b><small class="muted">AO AR · Filme</small></div></div></div>
     </aside>
-    <main class="card2" id="editor"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><h2 style="margin:0;font-size:16px">Editar · Filme</h2><span class="badge2 on">AO AR</span></div><label class="lbl">Banner (URL ou deixe a galeria)</label><input id="f_poster" value="" placeholder="Capa da galeria já definida" data-has-data="1">
-      <button class="btn small secondary" type="button" id="btnAutoPoster" style="margin-top:8px">🔎 Buscar capa pelo nome</button>
-      <p class="muted" style="font-size:11px;margin-top:6px">A IA de capa busca pôster na Wikipedia pelo nome do filme (precisa de internet).</p><label class="lbl">Capa automática (pelo nome)</label><p class="muted" style="font-size:11px">Toque para buscar o pôster na Wikipedia pelo nome do filme. Não usa a foto da galeria (evita base64 gigante).</p><input id="f_poster_file" type="file" accept="image/*"><img class="banner-preview" id="bannerPreview" src=""><label class="lbl">Nome</label><input id="f_title" value="Coraline e a Porta secreta"><label class="lbl">Lançamento agendado (opcional)</label><input id="f_release" type="datetime-local" value=""><p class="muted">Vazio = libera na hora de publicar.</p><label class="lbl">Descrição</label><textarea id="f_desc"></textarea><label class="lbl">Gêneros (toque para marcar)</label><div class="genre-chip-row" id="f_genres" data-selected="Suspense|Terror|Aventura|Ficção|Fantasia|Animação"><span class="genre-chip" data-g="Ação">Ação</span><span class="genre-chip on" data-g="Aventura">Aventura</span><span class="genre-chip" data-g="Comédia">Comédia</span><span class="genre-chip" data-g="Drama">Drama</span><span class="genre-chip on" data-g="Terror">Terror</span><span class="genre-chip" data-g="Romance">Romance</span><span class="genre-chip on" data-g="Ficção">Ficção</span><span class="genre-chip on" data-g="Animação">Animação</span><span class="genre-chip" data-g="Documentário">Documentário</span><span class="genre-chip on" data-g="Suspense">Suspense</span><span class="genre-chip on" data-g="Fantasia">Fantasia</span></div><label class="lbl">URL do vídeo (YouTube, Seekee, Vimeo, mp4, m3u8 ou página)</label><input id="f_url" placeholder="YouTube, Seekee, mp4, m3u8 ou página do filme" value="https://ver.123pelicula.com/pt/detail/movie/dJOaDemkfHpWOgAihdiDM-Coraline"><label class="lbl">Legenda (.vtt opcional)</label><input id="f_sub" value=""><div class="btns"><button class="btn small ok" type="button" id="btnPublish">Publicar</button><button class="btn small secondary" type="button" id="btnDraft">Rascunho</button><button class="btn small danger" type="button" id="btnDelete">Excluir</button></div></main>
+    <main class="card2" id="editor"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><h2 style="margin:0;font-size:16px">Editar · Filme</h2><span class="badge2 on">AO AR</span></div><label class="lbl">Banner (URL ou deixe a galeria)</label><input id="f_poster" value="https://upload.wikimedia.org/wikipedia/en/6/60/Verity_poster.jpg" placeholder="https://..." data-has-data="0"><label class="lbl">Ou da galeria</label><input id="f_poster_file" type="file" accept="image/*"><img class="banner-preview" id="bannerPreview" src="https://upload.wikimedia.org/wikipedia/en/6/60/Verity_poster.jpg"><label class="lbl">Nome</label><input id="f_title" value="Verity"><label class="lbl">Lançamento agendado (opcional)</label><input id="f_release" type="datetime-local" value=""><p class="muted">Vazio = libera na hora de publicar.</p><label class="lbl">Descrição</label><textarea id="f_desc"></textarea><label class="lbl">Gêneros (toque para marcar)</label><div class="genre-chip-row" id="f_genres" data-selected="Drama|Suspense|Ação"><span class="genre-chip on" data-g="Ação">Ação</span><span class="genre-chip" data-g="Aventura">Aventura</span><span class="genre-chip" data-g="Comédia">Comédia</span><span class="genre-chip on" data-g="Drama">Drama</span><span class="genre-chip" data-g="Terror">Terror</span><span class="genre-chip" data-g="Romance">Romance</span><span class="genre-chip" data-g="Ficção">Ficção</span><span class="genre-chip" data-g="Animação">Animação</span><span class="genre-chip" data-g="Documentário">Documentário</span><span class="genre-chip on" data-g="Suspense">Suspense</span><span class="genre-chip" data-g="Fantasia">Fantasia</span></div><label class="lbl">URL do vídeo (YouTube, Seekee, Vimeo, mp4, m3u8 ou página)</label><input id="f_url" placeholder="YouTube, Seekee, mp4, m3u8 ou página do filme" value="https://play.cuevana19.com/pt/detail/movie/uPt1EGz5QWisngR45IsGD-Verity"><label class="lbl">Legenda (.vtt opcional)</label><input id="f_sub" value=""><div class="btns"><button class="btn small ok" type="button" id="btnPublish">Publicar</button><button class="btn small secondary" type="button" id="btnDraft">Rascunho</button><button class="btn small danger" type="button" id="btnDelete">Excluir</button></div></main>
   </div>
 </div>
 
@@ -1496,15 +1485,15 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
   <div class="player-box">
     <div class="player-top">
       <div>
-        <h3 id="pTitle">Título</h3>
-        <div class="muted" id="pSub"></div>
+        <h3 id="pTitle">Verity</h3>
+        <div class="muted" id="pSub">Verity</div>
       </div>
       <button class="icon-btn" type="button" id="playerClose">Fechar</button>
     </div>
     <div class="stage" id="stage"></div>
-    <div class="ctrl">
-      <button type="button" id="btnPlay">Play / Pause</button>
-      <label class="muted">Velocidade
+    <div class="ctrl" style="">
+      <button type="button" id="btnPlay" style="">Play / Pause</button>
+      <label class="muted" style="">Velocidade
         <select id="speed">
           <option value="0.5">0.5x</option>
           <option value="0.75">0.75x</option>
@@ -1514,7 +1503,7 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
           <option value="2">2x</option>
         </select>
       </label>
-      <button type="button" id="btnFs">⛶ Fullscreen</button>
+      <button type="button" id="btnFs" style="">⛶ Fullscreen</button>
       <button type="button" id="epBtn" style="display:none">Episódios</button>
     </div>
     <div class="ep-list" id="epList"></div>
@@ -1541,7 +1530,7 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
     </div>
   </div>
 </div>
-<div class="toast" id="toast" style="pointer-events: none;">Publicado</div>
+<div class="toast" id="toast" style="pointer-events: none;">Bem-vindo ao criador</div>
 
 <script>
 (function () {
@@ -1564,8 +1553,613 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
     Ao gerar o APK, o que estiver abaixo já vem no app.
     Use o botão "Copiar HTML completo" no criador para atualizar.
     ========================================================= */
-  var EMBEDDED_CATALOG = [{"id":"id_2a76kbamws5pw4p","type":"movie","title":"A Noiva Cadáver","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/a/a6/Corpse_Bride_film_poster.jpg","url":"https://peliculaplay.com/pt/detail/movie/SdvZ6sucvKvzAEgXh9Wpn-Corpse-Bride","subtitleUrl":"","published":true,"releaseAt":"","genres":["Aventura","Drama","Terror","Animação","Fantasia","Romance","Comédia"],"seasons":[],"updatedAt":1795371481265,"createdAt":1795371303913},{"id":"id_yy1zcv5mws5m2ej","type":"movie","title":"Os Croods","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/6/63/The_Croods.png","url":"https://es.cuevana4br.com/pt/detail/movie/FLo2N9wvYbX9VGkpFHEJL-The-Croods","subtitleUrl":"","published":true,"releaseAt":"","genres":["Ação","Aventura","Animação","Ficção","Fantasia","Comédia"],"seasons":[],"updatedAt":1795371218490,"createdAt":1795371125419},{"id":"id_b2iv7temws5k0ca","type":"movie","title":"Angry Birds Movie","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/f/f9/The_Angry_Birds_Movie_poster.png","url":"https://latino.solo-latino.com/pt/detail/movie/YONSwXAO83m9oYDWpPyKO-The-Angry-Birds-Movie","subtitleUrl":"","published":true,"releaseAt":"","genres":["Ação","Aventura","Animação","Fantasia"],"seasons":[],"updatedAt":1795371101871,"createdAt":1795371029434},{"id":"id_irkhfrpmws46bwf","type":"movie","title":"Verity","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/6/60/Verity_poster.jpg","url":"https://ww20.321moviesfree.com/pt/detail/movie/aqRk0pnDV1SAu7G7xI1qt-Verity","subtitleUrl":"","published":true,"releaseAt":"","genres":["Drama","Suspense","Ação"],"seasons":[],"updatedAt":1795369532720,"createdAt":1795368711615},{"id":"id_su7t8dsmwr6ugs9","type":"series","title":"Dexter","description":"","poster":"https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Dexter_Logo.svg/1920px-Dexter_Logo.svg.png","url":"","subtitleUrl":"","published":true,"releaseAt":"","genres":["Ação","Terror","Documentário","Suspense","Ficção"],"seasons":[{"name":"Temporada 1","episodes":[{"title":"Ep 1","url":"https://latino.solo-latino.com/pt/detail/drama/9HS3fgJL64irdVnmhcFEf-Dexter-Season-1/1","subtitleUrl":""}]}],"updatedAt":1795376336155,"createdAt":1795312730745,"_hadBase64Poster":true},{"id":"id_40f1o1wmwr6s93n","type":"movie","title":"Sonic : O filme","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/4/45/Sonic_the_Hedgehog_film_poster.jpg","url":"https://es.cuevana4br.com/pt/detail/movie/hch3oQtwgSCZQ67Kitib6-Sonic-O-Filme","subtitleUrl":"","published":true,"releaseAt":"","genres":["Ação","Aventura","Ficção","Animação","Fantasia","Suspense"],"seasons":[],"updatedAt":1795312887110,"createdAt":1795312627475},{"id":"id_v4ero27mwr6pmza","type":"movie","title":"Cruella","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/f/f6/Cruella_2021_film_poster.jpg","url":"https://ver.123pelicula.com/pt/detail/movie/Qs1nBk4HkERH83EMoPTeo-Cruella","subtitleUrl":"","published":true,"releaseAt":"","genres":["Ação","Suspense","Drama","Fantasia","Ficção"],"seasons":[],"updatedAt":1795376360659,"createdAt":1795312505494,"_hadBase64Poster":true},{"id":"id_cp4b9k1mwqyf6ke","type":"movie","title":"Coraline e a Porta secreta","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/3/36/Coraline_poster.jpg","url":"https://ver.123pelicula.com/pt/detail/movie/dJOaDemkfHpWOgAihdiDM-Coraline","subtitleUrl":"","published":true,"releaseAt":"","seasons":[],"updatedAt":1795376401490,"createdAt":1795298580734,"genres":["Suspense","Terror","Aventura","Ficção","Fantasia","Animação"],"_hadBase64Poster":true},{"id":"id_tkr31g0mwql19g3","type":"series","title":"One Piece","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/3/3f/One_Piece_Eternal_Log_-_East_Blue.png","url":"","subtitleUrl":"","published":true,"releaseAt":"","seasons":[{"name":"Temporada 1","episodes":[{"title":"Ep 1","url":"https://ver.123pelicula.com/pt/detail/drama/hKQr7WDgMEBe4uEbU3CNU-One-Piece/1","subtitleUrl":""}]},{"name":"Temporada 2","episodes":[{"title":"Ep 1","url":"https://ver.123pelicula.com/pt/detail/drama/hKQr7WDgMEBe4uEbU3CNU-One-Piece/2","subtitleUrl":""}]}],"updatedAt":1795376314536,"createdAt":1795276096275,"genres":["Ação","Aventura","Ficção","Animação","Fantasia"],"_hadBase64Poster":true},{"id":"id_mp0fas2mwqk3z5i","type":"movie","title":"Homem-aranha: Um novo dia","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/9/9a/Spider-Man_Brand_New_Day_poster.jpg","url":"https://es.cuevana4br.com/pt/detail/movie/iswnnqdfuZdhcRaFZNeuO-Spider-Man-Brand-New-Day","subtitleUrl":"","published":true,"releaseAt":"","seasons":[],"updatedAt":1795302369847,"createdAt":1795274543286,"genres":["Ficção","Ação","Aventura"]},{"id":"id_ayx45czmwqgp7lq","type":"movie","title":"JURASSIC WORLD","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/6/6e/Jurassic_World_poster.jpg","url":"https://es.cuevana4br.com/pt/detail/movie/1h7LV1iNaWJ8J1Py6E2h1-Jurassic-World","subtitleUrl":"","published":true,"releaseAt":"","seasons":[],"updatedAt":1795302346121,"createdAt":1795268815550,"genres":["Ação","Ficção","Aventura","Fantasia"]}];
+  var EMBEDDED_CATALOG = [
+  {
+    "id": "id_6tmxk84mwzinv6m",
+    "type": "movie",
+    "title": "Um filme minecraft",
+    "description": "",
+    "poster": "https://cdn.discordapp.com/attachments/1576013342332420336/1576014097961455736/images_72.jpg?ex=6b0b6101&is=6b0a0f81&hm=c70d03a2b6f9ce406b8084c9d57344c986e5682a6bbb66df8b4108166956f67b&",
+    "url": "https://latino.solo-latino.com/pt/detail/movie/YbifIyshpLDNovDJdghey-A-Minecraft-Movie",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Ação",
+      "Aventura",
+      "Fantasia",
+      "Ficção",
+      "Comédia",
+      "Drama"
+    ],
+    "seasons": [],
+    "updatedAt": 1795821656484,
+    "createdAt": 1795816307614
+  },
+  {
+    "id": "id_xmpvdjjmwzihh3m",
+    "type": "movie",
+    "title": "Coco: a vida é uma festa",
+    "description": "",
+    "poster": "https://cdn.discordapp.com/attachments/1576013342332420336/1576015057572077678/images_77.jpg?ex=6b0b61e6&is=6b0a1066&hm=20ccaa2caf5989a789c5100a2940579ac93efba30621dba65a9d7235279215f9&",
+    "url": "https://ver.123pelicula.com/pt/detail/movie/O9KysxQveGU4upYTmP7tg-Coco",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Animação",
+      "Fantasia",
+      "Comédia",
+      "Drama"
+    ],
+    "seasons": [],
+    "updatedAt": 1795821757604,
+    "createdAt": 1795816009426
+  },
+  {
+    "id": "id_6gqwwfnmwzielml",
+    "type": "movie",
+    "title": "Coringa",
+    "description": "",
+    "poster": "https://cdn.discordapp.com/attachments/1576013342332420336/1576015058054545500/images_78.jpg?ex=6b0b61e6&is=6b0a1066&hm=5f06858cb070670df8aa1ddf0ead49584515165cc3db9efc288d2b4854e96cda&",
+    "url": "https://latino.solo-latino.com/pt/detail/movie/2C0jo8Xm42VRTAHlMzywa-Joker",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Drama",
+      "Documentário",
+      "Suspense",
+      "Terror"
+    ],
+    "seasons": [],
+    "updatedAt": 1795821743819,
+    "createdAt": 1795815875325
+  },
+  {
+    "id": "id_32c8c9gmwzi9j68",
+    "type": "movie",
+    "title": "Círculo de fogo",
+    "description": "",
+    "poster": "https://cdn.discordapp.com/attachments/1576013342332420336/1576015056964030564/images_76.jpg?ex=6b0b61e6&is=6b0a1066&hm=cbc0dfd5f1f569a54a62848d902779023f7133891e1027fcd3cdb6951e069adc&",
+    "url": "https://play.cuevana19.com/pt/detail/movie/nfepTrLiavEttKNvTvJAQ-Pacific-Rim",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Ação",
+      "Ficção",
+      "Aventura",
+      "Fantasia"
+    ],
+    "seasons": [],
+    "updatedAt": 1795821724594,
+    "createdAt": 1795815638864
+  },
+  {
+    "id": "id_715pef9mwzi3qli",
+    "type": "movie",
+    "title": "Gigantes de aço",
+    "description": "",
+    "poster": "https://cdn.discordapp.com/attachments/1576013342332420336/1576015056565567659/images_75.jpg?ex=6b0b61e6&is=6b0a1066&hm=90a50f26ac47a0aa119f9d9db711c7965c3c8d81b55820881022d94017fdca42&",
+    "url": "https://es.cuevana4br.com/pt/detail/movie/pnzKn3ntf68C3p7kIYo3w-Real-Steel",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Ação",
+      "Ficção",
+      "Drama"
+    ],
+    "seasons": [],
+    "updatedAt": 1795821696725,
+    "createdAt": 1795815368550
+  },
+  {
+    "id": "id_p6udgsdmwzi1xzm",
+    "type": "movie",
+    "title": "Avatar",
+    "description": "",
+    "poster": "https://cdn.discordapp.com/attachments/1576013342332420336/1576014098607636661/images_74.jpg?ex=6b0b6102&is=6b0a0f82&hm=a60029b3e63fecc5ca932eb278033f95a7a89457e87034b7c4035f1cb1cde312&",
+    "url": "https://peliculaplay.com/pt/detail/movie/KI4VxflWbgGZ5u8FenqFN-Avatar",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Ficção",
+      "Ação",
+      "Aventura",
+      "Fantasia",
+      "Romance"
+    ],
+    "seasons": [],
+    "updatedAt": 1795821638296,
+    "createdAt": 1795815284818
+  },
+  {
+    "id": "id_t1711f8mwzhzyvo",
+    "type": "movie",
+    "title": "Era do gelo",
+    "description": "",
+    "poster": "https://cdn.discordapp.com/attachments/1576013342332420336/1576014098284679178/images_73.jpg?ex=6b0b6101&is=6b0a0f81&hm=5a9cc0907838798443174240f2ee5b13ded34d413cbee16ad7a9768cb73a7c63&",
+    "url": "https://ww1.123flmsfree.com/pt/detail/movie/0mmZKrkuA71EGTiG0537N-Ice-Age",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Aventura",
+      "Comédia",
+      "Animação"
+    ],
+    "seasons": [],
+    "updatedAt": 1795821617318,
+    "createdAt": 1795815192660
+  },
+  {
+    "id": "id_fjhl28nmwzhqfkh",
+    "type": "series",
+    "title": "Wandinha",
+    "description": "",
+    "poster": "https://cdn.discordapp.com/attachments/1576013342332420336/1576014097626038282/images_71.jpg?ex=6b0b6101&is=6b0a0f81&hm=454bfe30356ada68ec2e05deadf31a2c3f90f9e5ae95511616250e4129cfba5b&",
+    "url": "",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Comédia",
+      "Drama",
+      "Suspense",
+      "Terror"
+    ],
+    "seasons": [
+      {
+        "name": "Temporada 1",
+        "episodes": [
+          {
+            "title": "Ep 1",
+            "url": "https://ww1.123flmsfree.com/pt/detail/drama/R1bIAUpBP1r5ttZ3rCmkf-Wednesday-Season-1/1",
+            "subtitleUrl": ""
+          }
+        ]
+      }
+    ],
+    "updatedAt": 1795821593475,
+    "createdAt": 1795814747729
+  },
+  {
+    "id": "id_7w72pcimwzh8xu4",
+    "type": "movie",
+    "title": "Resident Evil",
+    "description": "",
+    "poster": "https://cdn.discordapp.com/attachments/1576013342332420336/1576014097022193856/images_69.jpg?ex=6b0b6101&is=6b0a0f81&hm=b9732cea7b559a47fd2988f6a568e5f19dff30eaa491a7520518422bafa9de1a&",
+    "url": "https://flixlat.com/pt/detail/movie/Brriqnv88XZe8ty7N4NFh-Resident-Evil",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Terror",
+      "Ficção",
+      "Ação"
+    ],
+    "seasons": [],
+    "updatedAt": 1795821557750,
+    "createdAt": 1795813931596
+  },
+  {
+    "id": "id_2nsmgfomwzh74xf",
+    "type": "movie",
+    "title": "Em ritmo de fuga",
+    "description": "",
+    "poster": "https://cdn.discordapp.com/attachments/1576013342332420336/1576014096669737091/images_68.jpg?ex=6b0b6101&is=6b0a0f81&hm=f821e5f536d8888dcdde41d2a0766260fb71787345bbfaed8753953f210af526&",
+    "url": "https://www3.dramasfree.com/pt/detail/movie/Wae6BbN6SQFZVfBY0caP8-Baby-Driver",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Ação",
+      "Comédia",
+      "Aventura",
+      "Suspense"
+    ],
+    "seasons": [],
+    "updatedAt": 1795821518397,
+    "createdAt": 1795813847475
+  },
+  {
+    "id": "id_0qmxoammwzh2os0",
+    "type": "movie",
+    "title": "Big pai, big filho",
+    "description": "",
+    "poster": "https://cdn.discordapp.com/attachments/1576013342332420336/1576014096313229553/images_67.jpg?ex=6b0b6101&is=6b0a0f81&hm=d2b843e63f070d7bead05ea4ae5bed57f8fc6bce225fcffe0f831420935df74e&",
+    "url": "https://ver.123pelicula.com/pt/detail/movie/mZ2ZFK8YSB9AL516Jv9Lj-The-Son-of-Bigfoot",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Aventura",
+      "Fantasia",
+      "Animação",
+      "Ação"
+    ],
+    "seasons": [],
+    "updatedAt": 1795821495905,
+    "createdAt": 1795813639920
+  },
+  {
+    "id": "id_g3pb2gwmwzgy1p5",
+    "type": "movie",
+    "title": "Tipo irmãs",
+    "description": "",
+    "poster": "https://cdn.discordapp.com/attachments/1576013342332420336/1576014095956578386/images_66.jpg?ex=6b0b6101&is=6b0a0f81&hm=a0f5d38553952f42c2e2871be89ef89e71dce80a4473b2caf28336069bbbfd85&",
+    "url": "https://ww1.123flmsfree.com/pt/detail/movie/Tb2ZN2CXVDbjhxsWl48we-Steps",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Comédia",
+      "Ação",
+      "Aventura",
+      "Animação"
+    ],
+    "seasons": [],
+    "updatedAt": 1795821477010,
+    "createdAt": 1795813423385
+  },
+  {
+    "id": "id_mymdosbmwzgtw5f",
+    "type": "movie",
+    "title": "Backrooms: Um não lugar",
+    "description": "",
+    "poster": "https://cdn.discordapp.com/attachments/1576013342332420336/1576013918516678657/images_65.jpg?ex=6b0b60d7&is=6b0a0f57&hm=b89c52b721b93636325cb25cdabad427aeb953b057465338fc590e00b6a63edc&",
+    "url": "https://ww20.321moviesfree.com/pt/detail/movie/kjirm6JvrTuQH9ioILVOW-Backrooms",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Terror",
+      "Ficção",
+      "Suspense"
+    ],
+    "seasons": [],
+    "updatedAt": 1795821416238,
+    "createdAt": 1795813229571
+  },
+  {
+    "id": "id_ankob05mwzgr8bk",
+    "type": "movie",
+    "title": "Carros 2006 pixar",
+    "description": "",
+    "poster": "https://cdn.discordapp.com/attachments/1576013342332420336/1576013622423851088/images_64.jpg?ex=6b0b6090&is=6b0a0f10&hm=b361822615f14ee03a3695c41d8b3fe09dde25bd0eb98d83905901125d6125c5&",
+    "url": "https://play.cuevana19.com/pt/detail/movie/cSVZt4mDyFDDYHnRRsHxF-Cars",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Comédia",
+      "Aventura",
+      "Animação",
+      "Drama"
+    ],
+    "seasons": [],
+    "updatedAt": 1795821371914,
+    "createdAt": 1795813105376
+  },
+  {
+    "id": "id_aw4lcs7mwzgo0fv",
+    "type": "movie",
+    "title": "Interestelar",
+    "description": "",
+    "poster": "https://upload.wikimedia.org/wikipedia/pt/3/3a/Interstellar_Filme.png",
+    "url": "https://peliculaplay.com/pt/detail/movie/FDh3sw3Ezh20ZPmlW1hxm-Interstellar",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Ação",
+      "Aventura",
+      "Ficção",
+      "Drama",
+      "Suspense"
+    ],
+    "seasons": [],
+    "updatedAt": 1795820988322,
+    "createdAt": 1795812955195
+  },
+  {
+    "id": "id_ml0pe07mwti17yq",
+    "type": "movie",
+    "title": "Vingadores: Ultimato",
+    "description": "",
+    "poster": "https://upload.wikimedia.org/wikipedia/pt/9/9b/Avengers_Endgame.jpg",
+    "url": "https://ww1.123flmsfree.com/pt/detail/movie/qFezSkAmhb2URCCuy8EhT-Avengers-Endgame",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Ação",
+      "Aventura",
+      "Ficção",
+      "Fantasia"
+    ],
+    "seasons": [],
+    "updatedAt": 1795820957224,
+    "createdAt": 1795452454034
+  },
+  {
+    "id": "id_2a76kbamws5pw4p",
+    "type": "movie",
+    "title": "A Noiva Cadáver",
+    "description": "",
+    "poster": "https://upload.wikimedia.org/wikipedia/en/a/a6/Corpse_Bride_film_poster.jpg",
+    "url": "https://peliculaplay.com/pt/detail/movie/SdvZ6sucvKvzAEgXh9Wpn-Corpse-Bride",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Aventura",
+      "Drama",
+      "Terror",
+      "Animação",
+      "Fantasia",
+      "Romance",
+      "Comédia"
+    ],
+    "seasons": [],
+    "updatedAt": 1795371481265,
+    "createdAt": 1795371303913
+  },
+  {
+    "id": "id_yy1zcv5mws5m2ej",
+    "type": "movie",
+    "title": "Os Croods",
+    "description": "",
+    "poster": "https://upload.wikimedia.org/wikipedia/en/6/63/The_Croods.png",
+    "url": "https://es.cuevana4br.com/pt/detail/movie/FLo2N9wvYbX9VGkpFHEJL-The-Croods",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Ação",
+      "Aventura",
+      "Animação",
+      "Ficção",
+      "Fantasia",
+      "Comédia"
+    ],
+    "seasons": [],
+    "updatedAt": 1795371218490,
+    "createdAt": 1795371125419
+  },
+  {
+    "id": "id_b2iv7temws5k0ca",
+    "type": "movie",
+    "title": "Angry Birds Movie",
+    "description": "",
+    "poster": "https://upload.wikimedia.org/wikipedia/en/f/f9/The_Angry_Birds_Movie_poster.png",
+    "url": "https://latino.solo-latino.com/pt/detail/movie/YONSwXAO83m9oYDWpPyKO-The-Angry-Birds-Movie",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Ação",
+      "Aventura",
+      "Animação",
+      "Fantasia"
+    ],
+    "seasons": [],
+    "updatedAt": 1795371101871,
+    "createdAt": 1795371029434
+  },
+  {
+    "id": "id_irkhfrpmws46bwf",
+    "type": "movie",
+    "title": "Verity",
+    "description": "",
+    "poster": "https://upload.wikimedia.org/wikipedia/en/6/60/Verity_poster.jpg",
+    "url": "https://play.cuevana19.com/pt/detail/movie/uPt1EGz5QWisngR45IsGD-Verity",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Drama",
+      "Suspense",
+      "Ação"
+    ],
+    "seasons": [],
+    "updatedAt": 1795822643501,
+    "createdAt": 1795368711615
+  },
+  {
+    "id": "id_su7t8dsmwr6ugs9",
+    "type": "series",
+    "title": "Dexter",
+    "description": "",
+    "poster": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Dexter_Logo.svg/1920px-Dexter_Logo.svg.png",
+    "url": "",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Ação",
+      "Terror",
+      "Documentário",
+      "Suspense",
+      "Ficção"
+    ],
+    "seasons": [
+      {
+        "name": "Temporada 1",
+        "episodes": [
+          {
+            "title": "Ep 1",
+            "url": "https://latino.solo-latino.com/pt/detail/drama/9HS3fgJL64irdVnmhcFEf-Dexter-Season-1/1",
+            "subtitleUrl": ""
+          }
+        ]
+      }
+    ],
+    "updatedAt": 1795376336155,
+    "createdAt": 1795312730745,
+    "_hadBase64Poster": true
+  },
+  {
+    "id": "id_40f1o1wmwr6s93n",
+    "type": "movie",
+    "title": "Sonic : O filme",
+    "description": "",
+    "poster": "https://upload.wikimedia.org/wikipedia/en/4/45/Sonic_the_Hedgehog_film_poster.jpg",
+    "url": "https://es.cuevana4br.com/pt/detail/movie/hch3oQtwgSCZQ67Kitib6-Sonic-O-Filme",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Ação",
+      "Aventura",
+      "Ficção",
+      "Animação",
+      "Fantasia",
+      "Suspense"
+    ],
+    "seasons": [],
+    "updatedAt": 1795312887110,
+    "createdAt": 1795312627475
+  },
+  {
+    "id": "id_v4ero27mwr6pmza",
+    "type": "movie",
+    "title": "Cruella",
+    "description": "",
+    "poster": "https://upload.wikimedia.org/wikipedia/en/f/f6/Cruella_2021_film_poster.jpg",
+    "url": "https://ver.123pelicula.com/pt/detail/movie/Qs1nBk4HkERH83EMoPTeo-Cruella",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "genres": [
+      "Ação",
+      "Suspense",
+      "Drama",
+      "Fantasia",
+      "Ficção"
+    ],
+    "seasons": [],
+    "updatedAt": 1795376360659,
+    "createdAt": 1795312505494,
+    "_hadBase64Poster": true
+  },
+  {
+    "id": "id_cp4b9k1mwqyf6ke",
+    "type": "movie",
+    "title": "Coraline e a Porta secreta",
+    "description": "",
+    "poster": "https://upload.wikimedia.org/wikipedia/en/3/36/Coraline_poster.jpg",
+    "url": "https://ver.123pelicula.com/pt/detail/movie/dJOaDemkfHpWOgAihdiDM-Coraline",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "seasons": [],
+    "updatedAt": 1795376401490,
+    "createdAt": 1795298580734,
+    "genres": [
+      "Suspense",
+      "Terror",
+      "Aventura",
+      "Ficção",
+      "Fantasia",
+      "Animação"
+    ],
+    "_hadBase64Poster": true
+  },
+  {
+    "id": "id_tkr31g0mwql19g3",
+    "type": "series",
+    "title": "One Piece",
+    "description": "",
+    "poster": "https://upload.wikimedia.org/wikipedia/en/3/3f/One_Piece_Eternal_Log_-_East_Blue.png",
+    "url": "",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "seasons": [
+      {
+        "name": "Temporada 1",
+        "episodes": [
+          {
+            "title": "Ep 1",
+            "url": "https://ver.123pelicula.com/pt/detail/drama/hKQr7WDgMEBe4uEbU3CNU-One-Piece/1",
+            "subtitleUrl": ""
+          }
+        ]
+      },
+      {
+        "name": "Temporada 2",
+        "episodes": [
+          {
+            "title": "Ep 1",
+            "url": "https://ver.123pelicula.com/pt/detail/drama/hKQr7WDgMEBe4uEbU3CNU-One-Piece/2",
+            "subtitleUrl": ""
+          }
+        ]
+      }
+    ],
+    "updatedAt": 1795376314536,
+    "createdAt": 1795276096275,
+    "genres": [
+      "Ação",
+      "Aventura",
+      "Ficção",
+      "Animação",
+      "Fantasia"
+    ],
+    "_hadBase64Poster": true
+  },
+  {
+    "id": "id_mp0fas2mwqk3z5i",
+    "type": "movie",
+    "title": "Homem-aranha: Um novo dia",
+    "description": "",
+    "poster": "https://upload.wikimedia.org/wikipedia/en/9/9a/Spider-Man_Brand_New_Day_poster.jpg",
+    "url": "https://es.cuevana4br.com/pt/detail/movie/iswnnqdfuZdhcRaFZNeuO-Spider-Man-Brand-New-Day",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "seasons": [],
+    "updatedAt": 1795302369847,
+    "createdAt": 1795274543286,
+    "genres": [
+      "Ficção",
+      "Ação",
+      "Aventura"
+    ]
+  },
+  {
+    "id": "id_ayx45czmwqgp7lq",
+    "type": "movie",
+    "title": "JURASSIC WORLD",
+    "description": "",
+    "poster": "https://upload.wikimedia.org/wikipedia/en/6/6e/Jurassic_World_poster.jpg",
+    "url": "https://es.cuevana4br.com/pt/detail/movie/1h7LV1iNaWJ8J1Py6E2h1-Jurassic-World",
+    "subtitleUrl": "",
+    "published": true,
+    "releaseAt": "",
+    "seasons": [],
+    "updatedAt": 1795302346121,
+    "createdAt": 1795268815550,
+    "genres": [
+      "Ação",
+      "Ficção",
+      "Aventura",
+      "Fantasia"
+    ]
+  }
+];
   var EMBEDDED_MESSAGES = [
+  {
+    "id": "m_mwzda2bcievx",
+    "fromName": "Zé pilantra",
+    "fromAvatar": "",
+    "text": "Oi",
+    "at": 1795807265592
+  },
   {
     "id": "m_mwqkhz91",
     "fromName": "Zé pilantra",
@@ -4220,9 +4814,9 @@ $("btnPublish").onclick = function () {
         // embute catálogo/mensagens atuais
         try { html = bakeEmbeddedIntoHtmlSource(html); } catch (e) {}
         try {
-          html = html.replace(/id="adminApp" class="on"/g, 'id="adminApp" class=""');
-          html = html.replace(/id="viewApp" class=""/g, 'id="viewApp" class="on"');
-          html = html.replace(/id="appBg"[^>]*>/g, 'id="appBg">');
+          html = html.replace(/id="adminApp" class=""/g, 'id="adminApp" class=""');
+          html = html.replace(/id="viewApp" class="on"/g, 'id="viewApp" class="on"');
+          html = html.replace(/id="appBg">]*>/g, 'id="appBg">');
           html = html.replace(/data:image\/[a-zA-Z0-9+.-]+;base64,[A-Za-z0-9+\/=]{40000,}/g, "");
           if (html.indexOf('id="splash"') < 0) {
             var inj = '<div id="splash" class="obliry-splash"><div class="ob-stage"><div class="ob-word"><span class="ob-letter">O</span><span class="ob-letter">B</span><span class="ob-letter">L</span><span class="ob-letter">I</span><span class="ob-letter">R</span><span class="ob-letter">Y</span><div class="ob-hole"></div></div><div class="ob-credit">Feito por Raphael Rocha</div></div><div class="ob-vignette"></div></div>';
@@ -4241,12 +4835,12 @@ $("btnPublish").onclick = function () {
         try {
           html = html.replace(/id="adminApp" class=""/g, 'id="adminApp" class=""');
           html = html.replace(/id="viewApp" class="on"/g, 'id="viewApp" class="on"');
-          html = html.replace(/<section class="page" id="page-lib">/g, '<section class="page active" id="page-lib">');
-          html = html.replace(/<section class="page active" id="page-profile">/g, '<section class="page" id="page-profile">');
-          html = html.replace(/data-tab="profile" class="active"/g, 'data-tab="profile"');
-          html = html.replace(/class="" data-tab="lib"/g, 'class="active" data-tab="lib"');
-          html = html.replace(/id="searchBar" style="display: none;"/g, 'id="searchBar" style="display: flex;"');
-          html = html.replace(/class="drawer-open"/g, 'class=""');
+          html = html.replace(/<section class="page active" id="page-lib">/g, '<section class="page active" id="page-lib">');
+          html = html.replace(/<section class="page" id="page-profile">/g, '<section class="page" id="page-profile">');
+          html = html.replace(/data-tab="profile"/g, 'data-tab="profile"');
+          html = html.replace(/class="active" data-tab="lib"/g, 'class="active" data-tab="lib"');
+          html = html.replace(/id="searchBar" style="display: flex;"/g, 'id="searchBar" style="display: flex;"');
+          html = html.replace(/class=""/g, 'class=""');
         } catch (e) {}
         // remove data:image enormes que sobraram em qualquer lugar (senão clipboard zera)
         try {
