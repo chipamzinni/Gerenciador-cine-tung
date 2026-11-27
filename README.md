@@ -3323,12 +3323,8 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
         <button class="btn secondary block" type="button" id="btnDrawerHome"><span class="dot"></span> Início (Biblioteca)</button>
     <button type="button" class="drawer-item" id="btnDrawerSettings"><span>⚙️</span> Configurações</button>
     <div class="drawer-settings hidden" id="drawerSettingsPanel">
-      <label class="lbl">Banners do carrossel (capa)</label>
-      <p class="muted" style="font-size:11px">Banners que passam na Biblioteca. Salvos ao copiar HTML.</p>
-      <div id="brtvBannerEditor"></div>
-      <button class="btn small secondary block" type="button" id="btnBrtvAddBanner">+ Banner</button>
-
       <label class="lbl">Fundo do app</label>
+      <p class="muted" style="font-size:11px">Escolha uma imagem de fundo ou volte ao padrão.</p>
       <input type="file" id="bgImagePicker" accept="image/*" style="width:100%;font-size:12px;color:var(--muted)">
       <button class="btn small secondary block" type="button" id="btnResetBg" style="margin-top:8px">Fundo padrão</button>
       <div class="drawer-credits">
@@ -3375,7 +3371,9 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
       <div style="height:12px"></div>
       <div class="list" id="adminList"><div class="item"><img src="" alt=""><div class="meta"><b>A Noiva Cadáver</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>Os Croods</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>Angry Birds Movie</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>Verity</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>Dexter</b><small class="muted">AO AR · Série</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>Sonic : O filme</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>Cruella</b><small class="muted">AO AR · Filme</small></div></div><div class="item active"><img src="" alt=""><div class="meta"><b>Coraline e a Porta secreta</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>One Piece</b><small class="muted">AO AR · Série</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>Homem-aranha: Um novo dia</b><small class="muted">AO AR · Filme</small></div></div><div class="item"><img src="" alt=""><div class="meta"><b>JURASSIC WORLD</b><small class="muted">AO AR · Filme</small></div></div></div>
     </aside>
-    <main class="card2" id="editor"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><h2 style="margin:0;font-size:16px">Editar · Filme</h2><span class="badge2 on">AO AR</span></div><label class="lbl">Banner (URL ou deixe a galeria)</label><input id="f_poster" value="" placeholder="Capa da galeria já definida" data-has-data="1"><label class="lbl">Ou da galeria</label><input id="f_poster_file" type="file" accept="image/*"><img class="banner-preview" id="bannerPreview" src=""><label class="lbl">Nome</label><input id="f_title" value="Coraline e a Porta secreta"><label class="lbl">Lançamento agendado (opcional)</label><input id="f_release" type="datetime-local" value=""><p class="muted">Vazio = libera na hora de publicar.</p><label class="lbl">Descrição</label><textarea id="f_desc"></textarea><label class="lbl">Gêneros (toque para marcar)</label><div class="genre-chip-row" id="f_genres" data-selected="Suspense|Terror|Aventura|Ficção|Fantasia|Animação"><span class="genre-chip" data-g="Ação">Ação</span><span class="genre-chip on" data-g="Aventura">Aventura</span><span class="genre-chip" data-g="Comédia">Comédia</span><span class="genre-chip" data-g="Drama">Drama</span><span class="genre-chip on" data-g="Terror">Terror</span><span class="genre-chip" data-g="Romance">Romance</span><span class="genre-chip on" data-g="Ficção">Ficção</span><span class="genre-chip on" data-g="Animação">Animação</span><span class="genre-chip" data-g="Documentário">Documentário</span><span class="genre-chip on" data-g="Suspense">Suspense</span><span class="genre-chip on" data-g="Fantasia">Fantasia</span></div><label class="lbl">URL do vídeo (YouTube, Seekee, Vimeo, mp4, m3u8 ou página)</label><input id="f_url" placeholder="YouTube, Seekee, mp4, m3u8 ou página do filme" value="https://ver.123pelicula.com/pt/detail/movie/dJOaDemkfHpWOgAihdiDM-Coraline"><label class="lbl">Legenda (.vtt opcional)</label><input id="f_sub" value=""><div class="btns"><button class="btn small ok" type="button" id="btnPublish">Publicar</button><button class="btn small secondary" type="button" id="btnDraft">Rascunho</button><button class="btn small danger" type="button" id="btnDelete">Excluir</button></div></main>
+    <main class="card2" id="editor"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><h2 style="margin:0;font-size:16px">Editar · Filme</h2><span class="badge2 on">AO AR</span></div><label class="lbl">Banner (URL ou deixe a galeria)</label><input id="f_poster" value="" placeholder="Capa da galeria já definida" data-has-data="1">
+      <button class="btn small secondary" type="button" id="btnAutoPoster" style="margin-top:8px">🔎 Buscar capa pelo nome</button>
+      <p class="muted" style="font-size:11px;margin-top:6px">A IA de capa busca pôster na Wikipedia pelo nome do filme (precisa de internet).</p><label class="lbl">Ou da galeria</label><input id="f_poster_file" type="file" accept="image/*"><img class="banner-preview" id="bannerPreview" src=""><label class="lbl">Nome</label><input id="f_title" value="Coraline e a Porta secreta"><label class="lbl">Lançamento agendado (opcional)</label><input id="f_release" type="datetime-local" value=""><p class="muted">Vazio = libera na hora de publicar.</p><label class="lbl">Descrição</label><textarea id="f_desc"></textarea><label class="lbl">Gêneros (toque para marcar)</label><div class="genre-chip-row" id="f_genres" data-selected="Suspense|Terror|Aventura|Ficção|Fantasia|Animação"><span class="genre-chip" data-g="Ação">Ação</span><span class="genre-chip on" data-g="Aventura">Aventura</span><span class="genre-chip" data-g="Comédia">Comédia</span><span class="genre-chip" data-g="Drama">Drama</span><span class="genre-chip on" data-g="Terror">Terror</span><span class="genre-chip" data-g="Romance">Romance</span><span class="genre-chip on" data-g="Ficção">Ficção</span><span class="genre-chip on" data-g="Animação">Animação</span><span class="genre-chip" data-g="Documentário">Documentário</span><span class="genre-chip on" data-g="Suspense">Suspense</span><span class="genre-chip on" data-g="Fantasia">Fantasia</span></div><label class="lbl">URL do vídeo (YouTube, Seekee, Vimeo, mp4, m3u8 ou página)</label><input id="f_url" placeholder="YouTube, Seekee, mp4, m3u8 ou página do filme" value="https://ver.123pelicula.com/pt/detail/movie/dJOaDemkfHpWOgAihdiDM-Coraline"><label class="lbl">Legenda (.vtt opcional)</label><input id="f_sub" value=""><div class="btns"><button class="btn small ok" type="button" id="btnPublish">Publicar</button><button class="btn small secondary" type="button" id="btnDraft">Rascunho</button><button class="btn small danger" type="button" id="btnDelete">Excluir</button></div></main>
   </div>
 </div>
 
@@ -3496,7 +3494,7 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
      Ao gerar o APK, o que estiver abaixo já vem no app.
      Use o botão "Copiar HTML completo" no criador para atualizar.
      ========================================================= */
-  var EMBEDDED_CATALOG = [{"id":"id_2a76kbamws5pw4p","type":"movie","title":"A Noiva Cadáver","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/a/a6/Corpse_Bride_film_poster.jpg","url":"https://peliculaplay.com/pt/detail/movie/SdvZ6sucvKvzAEgXh9Wpn-Corpse-Bride","subtitleUrl":"","published":true,"releaseAt":"","genres":["Aventura","Drama","Terror","Animação","Fantasia","Romance","Comédia"],"seasons":[],"updatedAt":1795371481265,"createdAt":1795371303913},{"id":"id_yy1zcv5mws5m2ej","type":"movie","title":"Os Croods","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/6/63/The_Croods.png","url":"https://es.cuevana4br.com/pt/detail/movie/FLo2N9wvYbX9VGkpFHEJL-The-Croods","subtitleUrl":"","published":true,"releaseAt":"","genres":["Ação","Aventura","Animação","Ficção","Fantasia","Comédia"],"seasons":[],"updatedAt":1795371218490,"createdAt":1795371125419},{"id":"id_b2iv7temws5k0ca","type":"movie","title":"Angry Birds Movie","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/f/f9/The_Angry_Birds_Movie_poster.png","url":"https://latino.solo-latino.com/pt/detail/movie/YONSwXAO83m9oYDWpPyKO-The-Angry-Birds-Movie","subtitleUrl":"","published":true,"releaseAt":"","genres":["Ação","Aventura","Animação","Fantasia"],"seasons":[],"updatedAt":1795371101871,"createdAt":1795371029434},{"id":"id_irkhfrpmws46bwf","type":"movie","title":"Verity","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/0/01/Verity_%28novel%29.jpg","url":"https://ww20.321moviesfree.com/pt/detail/movie/aqRk0pnDV1SAu7G7xI1qt-Verity","subtitleUrl":"","published":true,"releaseAt":"","genres":["Drama","Suspense","Ação"],"seasons":[],"updatedAt":1795369532720,"createdAt":1795368711615},{"id":"id_su7t8dsmwr6ugs9","type":"series","title":"Dexter","description":"","poster":"https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Dexter_Logo.svg/1920px-Dexter_Logo.svg.png","url":"","subtitleUrl":"","published":true,"releaseAt":"","genres":["Ação","Terror","Documentário","Suspense","Ficção"],"seasons":[{"name":"Temporada 1","episodes":[{"title":"Ep 1","url":"https://latino.solo-latino.com/pt/detail/drama/9HS3fgJL64irdVnmhcFEf-Dexter-Season-1/1","subtitleUrl":""}]}],"updatedAt":1795376336155,"createdAt":1795312730745,"_hadBase64Poster":true},{"id":"id_40f1o1wmwr6s93n","type":"movie","title":"Sonic : O filme","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/4/45/Sonic_the_Hedgehog_film_poster.jpg","url":"https://es.cuevana4br.com/pt/detail/movie/hch3oQtwgSCZQ67Kitib6-Sonic-O-Filme","subtitleUrl":"","published":true,"releaseAt":"","genres":["Ação","Aventura","Ficção","Animação","Fantasia","Suspense"],"seasons":[],"updatedAt":1795312887110,"createdAt":1795312627475},{"id":"id_v4ero27mwr6pmza","type":"movie","title":"Cruella","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/f/f6/Cruella_2021_film_poster.jpg","url":"https://ver.123pelicula.com/pt/detail/movie/Qs1nBk4HkERH83EMoPTeo-Cruella","subtitleUrl":"","published":true,"releaseAt":"","genres":["Ação","Suspense","Drama","Fantasia","Ficção"],"seasons":[],"updatedAt":1795376360659,"createdAt":1795312505494,"_hadBase64Poster":true},{"id":"id_cp4b9k1mwqyf6ke","type":"movie","title":"Coraline e a Porta secreta","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/3/36/Coraline_poster.jpg","url":"https://ver.123pelicula.com/pt/detail/movie/dJOaDemkfHpWOgAihdiDM-Coraline","subtitleUrl":"","published":true,"releaseAt":"","seasons":[],"updatedAt":1795376401490,"createdAt":1795298580734,"genres":["Suspense","Terror","Aventura","Ficção","Fantasia","Animação"],"_hadBase64Poster":true},{"id":"id_tkr31g0mwql19g3","type":"series","title":"One Piece","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/9/90/One_Piece%2C_Volume_61_Cover_%28Japanese%29.jpg","url":"","subtitleUrl":"","published":true,"releaseAt":"","seasons":[{"name":"Temporada 1","episodes":[{"title":"Ep 1","url":"https://ver.123pelicula.com/pt/detail/drama/hKQr7WDgMEBe4uEbU3CNU-One-Piece/1","subtitleUrl":""}]},{"name":"Temporada 2","episodes":[{"title":"Ep 1","url":"https://ver.123pelicula.com/pt/detail/drama/hKQr7WDgMEBe4uEbU3CNU-One-Piece/2","subtitleUrl":""}]}],"updatedAt":1795376314536,"createdAt":1795276096275,"genres":["Ação","Aventura","Ficção","Animação","Fantasia"],"_hadBase64Poster":true},{"id":"id_mp0fas2mwqk3z5i","type":"movie","title":"Homem-aranha: Um novo dia","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/b/b4/Spider-Man-_Across_the_Spider-Verse_poster.jpg","url":"https://es.cuevana4br.com/pt/detail/movie/iswnnqdfuZdhcRaFZNeuO-Spider-Man-Brand-New-Day","subtitleUrl":"","published":true,"releaseAt":"","seasons":[],"updatedAt":1795302369847,"createdAt":1795274543286,"genres":["Ficção","Ação","Aventura"]},{"id":"id_ayx45czmwqgp7lq","type":"movie","title":"JURASSIC WORLD","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/6/6e/Jurassic_World_poster.jpg","url":"https://es.cuevana4br.com/pt/detail/movie/1h7LV1iNaWJ8J1Py6E2h1-Jurassic-World","subtitleUrl":"","published":true,"releaseAt":"","seasons":[],"updatedAt":1795302346121,"createdAt":1795268815550,"genres":["Ação","Ficção","Aventura","Fantasia"]}];
+  var EMBEDDED_CATALOG = [{"id":"id_2a76kbamws5pw4p","type":"movie","title":"A Noiva Cadáver","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/a/a6/Corpse_Bride_film_poster.jpg","url":"https://peliculaplay.com/pt/detail/movie/SdvZ6sucvKvzAEgXh9Wpn-Corpse-Bride","subtitleUrl":"","published":true,"releaseAt":"","genres":["Aventura","Drama","Terror","Animação","Fantasia","Romance","Comédia"],"seasons":[],"updatedAt":1795371481265,"createdAt":1795371303913},{"id":"id_yy1zcv5mws5m2ej","type":"movie","title":"Os Croods","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/6/63/The_Croods.png","url":"https://es.cuevana4br.com/pt/detail/movie/FLo2N9wvYbX9VGkpFHEJL-The-Croods","subtitleUrl":"","published":true,"releaseAt":"","genres":["Ação","Aventura","Animação","Ficção","Fantasia","Comédia"],"seasons":[],"updatedAt":1795371218490,"createdAt":1795371125419},{"id":"id_b2iv7temws5k0ca","type":"movie","title":"Angry Birds Movie","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/f/f9/The_Angry_Birds_Movie_poster.png","url":"https://latino.solo-latino.com/pt/detail/movie/YONSwXAO83m9oYDWpPyKO-The-Angry-Birds-Movie","subtitleUrl":"","published":true,"releaseAt":"","genres":["Ação","Aventura","Animação","Fantasia"],"seasons":[],"updatedAt":1795371101871,"createdAt":1795371029434},{"id":"id_irkhfrpmws46bwf","type":"movie","title":"Verity","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/6/60/Verity_poster.jpg","url":"https://ww20.321moviesfree.com/pt/detail/movie/aqRk0pnDV1SAu7G7xI1qt-Verity","subtitleUrl":"","published":true,"releaseAt":"","genres":["Drama","Suspense","Ação"],"seasons":[],"updatedAt":1795369532720,"createdAt":1795368711615},{"id":"id_su7t8dsmwr6ugs9","type":"series","title":"Dexter","description":"","poster":"https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Dexter_Logo.svg/1920px-Dexter_Logo.svg.png","url":"","subtitleUrl":"","published":true,"releaseAt":"","genres":["Ação","Terror","Documentário","Suspense","Ficção"],"seasons":[{"name":"Temporada 1","episodes":[{"title":"Ep 1","url":"https://latino.solo-latino.com/pt/detail/drama/9HS3fgJL64irdVnmhcFEf-Dexter-Season-1/1","subtitleUrl":""}]}],"updatedAt":1795376336155,"createdAt":1795312730745,"_hadBase64Poster":true},{"id":"id_40f1o1wmwr6s93n","type":"movie","title":"Sonic : O filme","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/4/45/Sonic_the_Hedgehog_film_poster.jpg","url":"https://es.cuevana4br.com/pt/detail/movie/hch3oQtwgSCZQ67Kitib6-Sonic-O-Filme","subtitleUrl":"","published":true,"releaseAt":"","genres":["Ação","Aventura","Ficção","Animação","Fantasia","Suspense"],"seasons":[],"updatedAt":1795312887110,"createdAt":1795312627475},{"id":"id_v4ero27mwr6pmza","type":"movie","title":"Cruella","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/f/f6/Cruella_2021_film_poster.jpg","url":"https://ver.123pelicula.com/pt/detail/movie/Qs1nBk4HkERH83EMoPTeo-Cruella","subtitleUrl":"","published":true,"releaseAt":"","genres":["Ação","Suspense","Drama","Fantasia","Ficção"],"seasons":[],"updatedAt":1795376360659,"createdAt":1795312505494,"_hadBase64Poster":true},{"id":"id_cp4b9k1mwqyf6ke","type":"movie","title":"Coraline e a Porta secreta","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/3/36/Coraline_poster.jpg","url":"https://ver.123pelicula.com/pt/detail/movie/dJOaDemkfHpWOgAihdiDM-Coraline","subtitleUrl":"","published":true,"releaseAt":"","seasons":[],"updatedAt":1795376401490,"createdAt":1795298580734,"genres":["Suspense","Terror","Aventura","Ficção","Fantasia","Animação"],"_hadBase64Poster":true},{"id":"id_tkr31g0mwql19g3","type":"series","title":"One Piece","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/3/3f/One_Piece_Eternal_Log_-_East_Blue.png","url":"","subtitleUrl":"","published":true,"releaseAt":"","seasons":[{"name":"Temporada 1","episodes":[{"title":"Ep 1","url":"https://ver.123pelicula.com/pt/detail/drama/hKQr7WDgMEBe4uEbU3CNU-One-Piece/1","subtitleUrl":""}]},{"name":"Temporada 2","episodes":[{"title":"Ep 1","url":"https://ver.123pelicula.com/pt/detail/drama/hKQr7WDgMEBe4uEbU3CNU-One-Piece/2","subtitleUrl":""}]}],"updatedAt":1795376314536,"createdAt":1795276096275,"genres":["Ação","Aventura","Ficção","Animação","Fantasia"],"_hadBase64Poster":true},{"id":"id_mp0fas2mwqk3z5i","type":"movie","title":"Homem-aranha: Um novo dia","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/9/9a/Spider-Man_Brand_New_Day_poster.jpg","url":"https://es.cuevana4br.com/pt/detail/movie/iswnnqdfuZdhcRaFZNeuO-Spider-Man-Brand-New-Day","subtitleUrl":"","published":true,"releaseAt":"","seasons":[],"updatedAt":1795302369847,"createdAt":1795274543286,"genres":["Ficção","Ação","Aventura"]},{"id":"id_ayx45czmwqgp7lq","type":"movie","title":"JURASSIC WORLD","description":"","poster":"https://upload.wikimedia.org/wikipedia/en/6/6e/Jurassic_World_poster.jpg","url":"https://es.cuevana4br.com/pt/detail/movie/1h7LV1iNaWJ8J1Py6E2h1-Jurassic-World","subtitleUrl":"","published":true,"releaseAt":"","seasons":[],"updatedAt":1795302346121,"createdAt":1795268815550,"genres":["Ação","Ficção","Aventura","Fantasia"]}];
   var EMBEDDED_MESSAGES = [
   {
     "id": "m_mwqkhz91",
@@ -3756,17 +3754,9 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
       emb.forEach(function (it) {
         if (!it || !it.id || !it.poster || !String(it.poster).trim()) return;
         var p = String(it.poster).trim();
-        var cur = map[it.id] ? String(map[it.id]) : "";
-        // preferir URL http(s) sobre data: base64 (WebView/APK carrega URL melhor)
-        var embIsHttp = /^https?:\/\//i.test(p);
-        var curIsData = cur.indexOf("data:") === 0;
-        if (!cur || (embIsHttp && curIsData) || (embIsHttp && !cur) || (!curIsData && p.length > cur.length)) {
-          map[it.id] = p;
-          changed = true;
-        }
+        if (map[it.id] !== p) { map[it.id] = p; changed = true; }
       });
       if (changed) savePosterMap(map);
-      // também atualiza catálogo local se ainda tiver posters data: gigantes
       try {
         var list = JSON.parse(localStorage.getItem(KEY) || "[]");
         if (Array.isArray(list) && list.length) {
@@ -3774,12 +3764,10 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
           list.forEach(function (it) {
             if (!it || !it.id) return;
             var embItem = null;
-            for (var i = 0; i < emb.length; i++) if (emb[i] && emb[i].id === it.id) { embItem = emb[i]; break; }
-            if (embItem && embItem.poster && /^https?:\/\//i.test(String(embItem.poster))) {
-              if (!it.poster || String(it.poster).indexOf("data:") === 0) {
-                it.poster = embItem.poster;
-                lc = true;
-              }
+            for (var k = 0; k < emb.length; k++) if (emb[k] && emb[k].id === it.id) { embItem = emb[k]; break; }
+            if (embItem && embItem.poster && String(embItem.poster).trim() && it.poster !== embItem.poster) {
+              it.poster = embItem.poster;
+              lc = true;
             }
           });
           if (lc) {
@@ -4564,16 +4552,33 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
     list.forEach(function (item) {
       var el = document.createElement("div");
       el.className = "card";
-      var openIt = function (ev) {
-        try { if (ev && ev.preventDefault) ev.preventDefault(); } catch (e) {}
-        try { if (ev && ev.stopPropagation) ev.stopPropagation(); } catch (e) {}
-        openPlayer(item);
-      };
-      el.onclick = openIt;
+      var openIt = function () { openPlayer(item); };
+      // toque: só abre se for tap (pouco movimento), não ao deslizar a lista
+      var tx = 0, ty = 0, moved = false;
+      el.addEventListener("touchstart", function (ev) {
+        moved = false;
+        try {
+          var t = ev.changedTouches && ev.changedTouches[0];
+          if (t) { tx = t.clientX; ty = t.clientY; }
+        } catch (e) {}
+      }, { passive: true });
+      el.addEventListener("touchmove", function (ev) {
+        try {
+          var t = ev.changedTouches && ev.changedTouches[0];
+          if (!t) return;
+          if (Math.abs(t.clientX - tx) > 12 || Math.abs(t.clientY - ty) > 12) moved = true;
+        } catch (e) {}
+      }, { passive: true });
       el.addEventListener("touchend", function (ev) {
-        try { if (ev) { ev.preventDefault(); ev.stopPropagation(); } } catch (e) {}
-        openIt(ev);
+        if (moved) return;
+        try { if (ev && ev.preventDefault) ev.preventDefault(); } catch (e) {}
+        openIt();
       }, { passive: false });
+      el.addEventListener("click", function (ev) {
+        // desktop / fallback; no mobile o touchend já abriu
+        if (ev && ev.detail === 0) return;
+        openIt();
+      });
       var poster = String(resolvePoster(item) || item.poster || "").trim();
       var initials = (item.title || "?").replace(/[^A-Za-z0-9À-ÿ ]/g, " ").trim().split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0); }).join("").toUpperCase() || "?";
       var posterHtml;
@@ -5463,7 +5468,99 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
       item.updatedAt = Date.now();
     }
 
-    $("btnPublish").onclick = function () {
+    
+  // === Auto capa pelo nome (Wikipedia) ===
+  function wikiSummaryUrl(lang, title) {
+    return "https://" + lang + ".wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(title);
+  }
+  function pickWikiImage(data) {
+    if (!data || data.type === "disambiguation") return "";
+    var img = (data.originalimage && data.originalimage.source) || (data.thumbnail && data.thumbnail.source) || "";
+    if (!img) return "";
+    return String(img).split("?")[0];
+  }
+  function fetchPosterByTitle(title) {
+    title = String(title || "").trim();
+    if (!title || title.length < 2) return Promise.resolve("");
+    var candidates = [];
+    var base = title;
+    // variações em EN e PT
+    var variants = [
+      title,
+      title + " (film)",
+      title + " (filme)",
+      title + " film",
+      title + " (TV series)",
+      title + " (série de televisão)",
+      title + " (movie)"
+    ];
+    // alguns títulos BR → EN comuns
+    var mapHint = {
+      "homem-aranha: um novo dia": "Spider-Man: Brand New Day",
+      "homem aranha: um novo dia": "Spider-Man: Brand New Day",
+      "a noiva cadáver": "Corpse Bride",
+      "os croods": "The Croods",
+      "coraline e a porta secreta": "Coraline (film)",
+      "sonic : o filme": "Sonic the Hedgehog (film)",
+      "sonic o filme": "Sonic the Hedgehog (film)",
+      "jurassic world": "Jurassic World"
+    };
+    var low = title.toLowerCase().replace(/\s+/g, " ").trim();
+    if (mapHint[low]) variants.unshift(mapHint[low]);
+    var langs = ["en", "pt"];
+    var chain = Promise.resolve("");
+    variants.forEach(function (v) {
+      langs.forEach(function (lang) {
+        chain = chain.then(function (prev) {
+          if (prev) return prev;
+          return fetch(wikiSummaryUrl(lang, v), { method: "GET" })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (data) { return pickWikiImage(data) || ""; })
+            .catch(function () { return ""; });
+        });
+      });
+    });
+    return chain;
+  }
+  function applyAutoPoster(url, silent) {
+    if (!url) {
+      if (!silent) toast("Não achei capa para este nome");
+      return;
+    }
+    if ($("f_poster")) $("f_poster").value = url;
+    if ($("bannerPreview")) {
+      $("bannerPreview").src = url;
+      $("bannerPreview").style.display = "block";
+    }
+    if (!silent) toast("Capa encontrada");
+  }
+  if ($("btnAutoPoster")) {
+    $("btnAutoPoster").onclick = function () {
+      var title = ($("f_title") && $("f_title").value) || "";
+      if (!title.trim()) { toast("Digite o nome do filme antes"); return; }
+      toast("Buscando capa…");
+      fetchPosterByTitle(title).then(function (url) {
+        applyAutoPoster(url, false);
+      });
+    };
+  }
+  // ao sair do campo nome, se não houver capa, tenta sozinho
+  if ($("f_title")) {
+    $("f_title").addEventListener("change", function () {
+      var title = ($("f_title").value || "").trim();
+      var cur = ($("f_poster") && $("f_poster").value) || "";
+      var prev = ($("bannerPreview") && $("bannerPreview").getAttribute("src")) || "";
+      if (!title) return;
+      if (cur && cur.indexOf("http") === 0) return;
+      if (prev && prev.indexOf("http") === 0) return;
+      if (prev && prev.indexOf("data:") === 0) return;
+      fetchPosterByTitle(title).then(function (url) {
+        if (url) applyAutoPoster(url, true);
+      });
+    });
+  }
+
+$("btnPublish").onclick = function () {
       try {
         var list = loadRaw();
         var it = null;
@@ -5484,13 +5581,29 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
             try { toast("Erro ao publicar"); } catch (e2) {}
           }
         }
-        if (it.poster && it.poster.indexOf("data:image") === 0 && it.poster.length > 70000) {
-          compressDataUrl(it.poster, 320, 0.55).then(function (p) {
-            it.poster = p;
+        function afterPoster() {
+          if (it.poster && it.poster.indexOf("data:image") === 0 && it.poster.length > 70000) {
+            compressDataUrl(it.poster, 320, 0.55).then(function (p) {
+              it.poster = p;
+              finish();
+            }).catch(function () { finish(); });
+          } else {
             finish();
-          }).catch(function () { finish(); });
+          }
+        }
+        // se não tem capa, busca automática pelo nome
+        if (!it.poster || !String(it.poster).trim()) {
+          toast("Buscando capa automática…");
+          fetchPosterByTitle(it.title || "").then(function (url) {
+            if (url) {
+              it.poster = url;
+              if ($("f_poster")) $("f_poster").value = url;
+              if ($("bannerPreview")) { $("bannerPreview").src = url; $("bannerPreview").style.display = "block"; }
+            }
+            afterPoster();
+          }).catch(function () { afterPoster(); });
         } else {
-          finish();
+          afterPoster();
         }
       } catch (e) {
         try { toast("Erro ao publicar"); } catch (e2) {}
@@ -6272,16 +6385,29 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
         slide.innerHTML = '<div class="cap">' + escapeHtml(b.title || "Destaque") + '</div>';
       }
       var openB = (function (banner) {
-        return function (ev) {
-          try { if (ev && ev.preventDefault) ev.preventDefault(); } catch (e) {}
-          openBannerTarget(banner);
-        };
+        return function () { openBannerTarget(banner); };
       })(b);
-      slide.onclick = openB;
+      var stx = 0, sty = 0, smoved = false;
+      slide.addEventListener("touchstart", function (ev) {
+        smoved = false;
+        try {
+          var t = ev.changedTouches && ev.changedTouches[0];
+          if (t) { stx = t.clientX; sty = t.clientY; }
+        } catch (e) {}
+      }, { passive: true });
+      slide.addEventListener("touchmove", function (ev) {
+        try {
+          var t = ev.changedTouches && ev.changedTouches[0];
+          if (!t) return;
+          if (Math.abs(t.clientX - stx) > 12 || Math.abs(t.clientY - sty) > 12) smoved = true;
+        } catch (e) {}
+      }, { passive: true });
       slide.addEventListener("touchend", function (ev) {
-        try { if (ev) { ev.preventDefault(); } } catch (e) {}
-        openB(ev);
+        if (smoved) return;
+        try { if (ev && ev.preventDefault) ev.preventDefault(); } catch (e) {}
+        openB();
       }, { passive: false });
+      slide.addEventListener("click", function () { openB(); });
       track.appendChild(slide);
       if (dots) {
         var d = document.createElement("span");
@@ -6440,18 +6566,9 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
   try { setTab("lib"); } catch (e) {}
   try { window.setTab = setTab; } catch (e) {}
   
-  // limpa banners vazios salvos no aparelho (APK) para o carrossel voltar a usar posters
+  // carrossel usa capas do catálogo (remove banners manuais antigos/errados no aparelho)
   try {
-    var _bk = "cinetung_brtv_banners_v1";
-    var _raw = localStorage.getItem(_bk);
-    if (_raw) {
-      var _arr = JSON.parse(_raw);
-      if (Array.isArray(_arr)) {
-        var _ok = _arr.filter(function (b) { return b && b.image && String(b.image).trim().length > 8; });
-        if (!_ok.length) localStorage.removeItem(_bk);
-        else if (_ok.length !== _arr.length) localStorage.setItem(_bk, JSON.stringify(_ok));
-      }
-    }
+    localStorage.removeItem("cinetung_brtv_banners_v1");
   } catch (e) {}
 
   setTimeout(function () { try { setTab("lib"); } catch (e) {} }, 400);
