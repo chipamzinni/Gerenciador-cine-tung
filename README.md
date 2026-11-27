@@ -1426,7 +1426,7 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
     <div class="btns" style="margin:0">
       <button class="btn small secondary" type="button" id="btnBackViewer">← Voltar ao Cine Tung</button>
       <button class="btn small secondary" type="button" id="btnAdminMsg">Mensagens</button>
-      <button class="btn small ok" type="button" id="btnCopyFullHtml">Copiar HTML completo</button>
+      <button class="btn small ok" type="button" id="btnCopyFullHtml">⬇ Gerar e baixar HTML</button>
     </div>
   </div>
   <div class="wrap">
@@ -1729,26 +1729,39 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
   }
   function resolvePoster(item) {
     if (!item) return "";
+    function isBadData(u) {
+      u = String(u || "");
+      if (u.indexOf("data:image") !== 0) return false;
+      if (u.indexOf("svg") >= 0) return false;
+      return true;
+    }
     var p = (item.poster || "").trim();
+    if (p && isBadData(p)) p = "";
     if (p) return p;
     try {
       var map = loadPosterMap();
-      if (item.id && map[item.id]) return map[item.id];
+      if (item.id && map[item.id]) {
+        var m = String(map[item.id] || "").trim();
+        if (m && !isBadData(m)) return m;
+      }
     } catch (e) {}
-    // fallback visual (não apaga capas reais já existentes)
     return titlePosterDataUrl(item.title || "");
   }
   function attachPosters(list) {
     var map = loadPosterMap();
+    function bad(u) {
+      u = String(u || "");
+      return u.indexOf("data:image") === 0 && u.indexOf("svg") < 0;
+    }
     return (list || []).map(function (it) {
       if (!it) return it;
-      if ((!it.poster || !String(it.poster).trim()) && it.id && map[it.id]) {
-        var o = {};
-        for (var k in it) if (Object.prototype.hasOwnProperty.call(it, k)) o[k] = it[k];
-        o.poster = map[it.id];
-        return o;
-      }
-      return it;
+      var o = {};
+      for (var k in it) if (Object.prototype.hasOwnProperty.call(it, k)) o[k] = it[k];
+      if (bad(o.poster)) o.poster = "";
+      var mp = (it.id && map[it.id]) ? String(map[it.id]) : "";
+      if (bad(mp)) mp = "";
+      if ((!o.poster || !String(o.poster).trim()) && mp) o.poster = mp;
+      return o;
     });
   }
   function bootstrapCatalogFromEmbedded() {
@@ -1811,9 +1824,16 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
       if (!emb || !emb.length) return;
       var map = loadPosterMap();
       var changed = false;
+      Object.keys(map).forEach(function (id) {
+        if (map[id] && String(map[id]).indexOf("data:") === 0) {
+          delete map[id];
+          changed = true;
+        }
+      });
       emb.forEach(function (it) {
         if (!it || !it.id || !it.poster || !String(it.poster).trim()) return;
         var p = String(it.poster).trim();
+        if (p.indexOf("data:") === 0) return;
         if (map[it.id] !== p) { map[it.id] = p; changed = true; }
       });
       if (changed) savePosterMap(map);
@@ -1824,9 +1844,14 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
           list.forEach(function (it) {
             if (!it || !it.id) return;
             var embItem = null;
-            for (var k = 0; k < emb.length; k++) if (emb[k] && emb[k].id === it.id) { embItem = emb[k]; break; }
-            if (embItem && embItem.poster && String(embItem.poster).trim() && it.poster !== embItem.poster) {
-              it.poster = embItem.poster;
+            for (var ki = 0; ki < emb.length; ki++) if (emb[ki] && emb[ki].id === it.id) { embItem = emb[ki]; break; }
+            if (embItem && embItem.poster && String(embItem.poster).indexOf("http") === 0) {
+              if (!it.poster || String(it.poster).indexOf("data:") === 0 || it.poster !== embItem.poster) {
+                it.poster = embItem.poster;
+                lc = true;
+              }
+            } else if (it.poster && String(it.poster).indexOf("data:") === 0) {
+              it.poster = "";
               lc = true;
             }
           });
@@ -4117,13 +4142,22 @@ $("btnPublish").onclick = function () {
     var catList = [], msgList = [];
     try { catList = loadRaw() || []; } catch (e) {}
     try { msgList = loadMsgs() || []; } catch (e) {}
-    // versão leve: tira data:image gigante (estoura clipboard do Android e "copia vazio")
+    var emb = [];
+    try { emb = (typeof EMBEDDED_CATALOG !== "undefined" && EMBEDDED_CATALOG) ? EMBEDDED_CATALOG : []; } catch (e) {}
+    // NUNCA exporta base64 de capa — só URL http(s)
     var lite = catList.map(function (it) {
       var o = {};
       for (var k in it) if (Object.prototype.hasOwnProperty.call(it, k)) o[k] = it[k];
-      if (o.poster && typeof o.poster === "string" && o.poster.indexOf("data:") === 0 && o.poster.length > 90000) {
-        o.poster = "";
-        o._posterOmitted = true;
+      var p = (o.poster && String(o.poster)) || "";
+      if (!p || p.indexOf("data:") === 0) {
+        var fixed = "";
+        for (var i = 0; i < emb.length; i++) {
+          if (emb[i] && emb[i].id === o.id && emb[i].poster && String(emb[i].poster).indexOf("http") === 0) {
+            fixed = String(emb[i].poster);
+            break;
+          }
+        }
+        o.poster = fixed;
       }
       return o;
     });
@@ -4155,6 +4189,16 @@ $("btnPublish").onclick = function () {
     ta.value = window.__cineCopyPayload;
     if ($("copyModalTitle")) $("copyModalTitle").textContent = title || "Código pronto";
     modal.classList.add("open");
+    var payload = window.__cineCopyPayload;
+    if (payload && payload.length > 5000) {
+      setTimeout(function () {
+        try {
+          if (typeof downloadTextFile === "function" && downloadTextFile("CineTung_APP.html", payload)) {
+            toast("HTML baixado · abra Downloads e envie no GitHub");
+          }
+        } catch (e) {}
+      }, 300);
+    }
   }
   function generateBakedHtml() {
     if (window.__cineTungCopying) {
