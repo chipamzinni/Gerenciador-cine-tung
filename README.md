@@ -2719,7 +2719,6 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
   font-size: 12px; color: var(--accent); font-weight: 600;
 }
 
-
 /* copy result modal */
 #copyModal {
   display: none; position: fixed; inset: 0; z-index: 200;
@@ -2856,7 +2855,6 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
   100% { transform: scale(3.2) translate(-14%, 2%); }
 }
 
-
 #appBg {
   position: fixed; inset: 0; z-index: 0;
   pointer-events: none !important;
@@ -2869,10 +2867,6 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
 #viewApp, #adminApp { position: relative; z-index: 1; }
 
 </style>
-
-
-
-
 
 <style id="homeHeroCss">
 .home-hero-img {
@@ -2960,6 +2954,8 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
   display:flex!important; align-items:center!important; justify-content:center!important;
   overflow:hidden!important;
   transition:opacity .55s ease, visibility .55s ease;
+  pointer-events:auto!important;
+  touch-action:none!important;
 }
 #splash.obliry-splash.hide,
 #splash.obliry-splash.gone{
@@ -3057,9 +3053,6 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
 }
 </style>
 
-
-
-
 <div id="splash" class="obliry-splash">
   <div class="ob-stage">
     <div class="ob-word">
@@ -3076,11 +3069,19 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
   var splash = document.getElementById("splash");
   if (!splash) return;
   var done = false;
+  try { window.__obliryIntroBlocking = true; window.__obliryIntroDone = false; } catch (e) {}
   function finish() {
     if (done) return;
     done = true;
-    try { window.__obliryIntroDone = true; } catch (e) {}
-    try { splash.classList.add("hide"); splash.style.pointerEvents="none"; splash.style.display="none"; } catch (e) {}
+    try {
+      window.__obliryIntroDone = true;
+      window.__obliryIntroBlocking = false;
+    } catch (e) {}
+    try {
+      splash.style.pointerEvents = "none";
+      splash.classList.add("hide");
+      splash.style.display = "none";
+    } catch (e) {}
     setTimeout(function () {
       try {
         splash.classList.add("gone");
@@ -3088,21 +3089,38 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
       } catch (e) {}
     }, 560);
   }
-  // timeline (intro ok; preto no O mais curto)
+  // timeline da intro
   setTimeout(function () { try { splash.classList.add("phase-in"); } catch (e) {} }, 180);
   setTimeout(function () { try { splash.classList.add("phase-hole"); } catch (e) {} }, 1750);
   setTimeout(function () { try { splash.classList.add("phase-dive"); } catch (e) {} }, 2350);
   setTimeout(finish, 4000);
-  // toque / clique = pular intro
+  // pular intro: bloqueia toque de passar para o filme por baixo
   function skip(ev) {
-    try { if (ev && ev.preventDefault) ev.preventDefault(); } catch (e) {}
+    try {
+      if (ev) {
+        if (ev.preventDefault) ev.preventDefault();
+        if (ev.stopPropagation) ev.stopPropagation();
+        if (ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+      }
+    } catch (e) {}
+    // trava imediatamente qualquer clique nos cards
+    try {
+      splash.style.pointerEvents = "none";
+      window.__obliryIntroBlocking = true;
+    } catch (e) {}
     try { splash.classList.add("phase-hole"); } catch (e) {}
     try { splash.classList.add("phase-dive"); } catch (e) {}
     setTimeout(finish, 650);
   }
-  splash.addEventListener("click", skip);
-  splash.addEventListener("touchend", skip, { passive: false });
-  // expõe para o app principal se quiser
+  splash.addEventListener("click", skip, true);
+  splash.addEventListener("touchstart", function (ev) {
+    try {
+      if (ev.preventDefault) ev.preventDefault();
+      if (ev.stopPropagation) ev.stopPropagation();
+      if (ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+    } catch (e) {}
+  }, { capture: true, passive: false });
+  splash.addEventListener("touchend", skip, { capture: true, passive: false });
   window.__obliryEndSplash = finish;
 })();
 </script>
@@ -3230,9 +3248,6 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
   window.addEventListener("pageshow", function () { unlockBlockers(); });
 })();</script>
 
-
-
-
 <!-- ========== VIEWER ========== -->
 <div id="viewApp" class="on">
   <div class="top">
@@ -3298,7 +3313,6 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
     </section>
   </main>
 
-  
 
 
 <nav class="bottom-nav" id="bottomNav" style="pointer-events: auto;">
@@ -3309,7 +3323,6 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
   </nav>
 </div>
 
-
 <!-- genre drawer -->
 <div class="drawer-backdrop" id="drawerBackdrop" style="pointer-events: none; opacity: 0; visibility: hidden;"></div>
 <aside class="genre-drawer" id="genreDrawer" aria-hidden="true" style="">
@@ -3319,7 +3332,7 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
   </div>
   <div class="drawer-body" id="drawerGenreList"><button type="button" class="drawer-item active"><span>•</span> Todos</button><button type="button" class="drawer-item"><span>·</span> Ação</button><button type="button" class="drawer-item"><span>·</span> Aventura</button><button type="button" class="drawer-item"><span>·</span> Comédia</button><button type="button" class="drawer-item"><span>·</span> Drama</button><button type="button" class="drawer-item"><span>·</span> Terror</button><button type="button" class="drawer-item"><span>·</span> Romance</button><button type="button" class="drawer-item"><span>·</span> Ficção</button><button type="button" class="drawer-item"><span>·</span> Animação</button><button type="button" class="drawer-item"><span>·</span> Documentário</button><button type="button" class="drawer-item"><span>·</span> Suspense</button><button type="button" class="drawer-item"><span>·</span> Fantasia</button></div>
   <div class="drawer-foot">
-    
+
         <button class="btn secondary block" type="button" id="btnDrawerHome"><span class="dot"></span> Início (Biblioteca)</button>
     <button type="button" class="drawer-item" id="btnDrawerSettings"><span>⚙️</span> Configurações</button>
     <div class="drawer-settings hidden" id="drawerSettingsPanel">
@@ -3609,7 +3622,6 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
       } catch (e) { resolve(dataUrl); }
     });
   }
-
 
   var memoryCatalog = null;
   var memoryMsgs = null;
@@ -4108,8 +4120,6 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
     /* intro já inicia sozinha no script do body */
   }
 
-
-
   /* mode */
   function showViewer() {
     try {
@@ -4511,7 +4521,6 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
     };
   }
   try { loadTheme(); } catch (e) {}
-
 
   /* grids */
   function itemGenres(item) {
@@ -4917,6 +4926,11 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
   }
 
   function openPlayer(item, ep, startSeconds) {
+    try {
+      if (window.__obliryIntroBlocking && !window.__obliryIntroDone) return;
+      var sp = document.getElementById("splash");
+      if (sp && !sp.classList.contains("hide") && !sp.classList.contains("gone") && sp.style.display !== "none") return;
+    } catch (e) {}
     if (!item) return;
     current = item; currentEp = null;
     var __resumeAt = Number(startSeconds) || 0;
@@ -5468,7 +5482,7 @@ body.drawer-open .drawer-backdrop { pointer-events: auto !important; }
       item.updatedAt = Date.now();
     }
 
-    
+
   // === Auto capa pelo nome (Wikipedia) ===
   function wikiSummaryUrl(lang, title) {
     return "https://" + lang + ".wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(title);
@@ -6275,9 +6289,9 @@ $("btnPublish").onclick = function () {
   window.addEventListener("focus", onAppActive);
   window.addEventListener("online", onAppActive);
 
-  
+
   /* Brasil TV */
-  
+
   /* Brasil TV — layout compacto */
   var BRTV_KEY = "cinetung_brtv_banners_v1";
   var homeHeroIndex = 0;
@@ -6565,7 +6579,7 @@ $("btnPublish").onclick = function () {
   }
   try { setTab("lib"); } catch (e) {}
   try { window.setTab = setTab; } catch (e) {}
-  
+
   // carrossel usa capas do catálogo (remove banners manuais antigos/errados no aparelho)
   try {
     localStorage.removeItem("cinetung_brtv_banners_v1");
@@ -6573,7 +6587,6 @@ $("btnPublish").onclick = function () {
 
   setTimeout(function () { try { setTab("lib"); } catch (e) {} }, 400);
   setTimeout(function () { try { clearClickBlockers(); setTab("lib"); } catch (e) {} }, 2000);
-
 
   function clearClickBlockers() {
     try {
@@ -6665,7 +6678,5 @@ $("btnPublish").onclick = function () {
   } catch (e) {}
 })();
 </script>
-
-
 
 </body></html>
