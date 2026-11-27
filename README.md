@@ -1442,7 +1442,7 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
     </aside>
     <main class="card2" id="editor"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><h2 style="margin:0;font-size:16px">Editar · Filme</h2><span class="badge2 on">AO AR</span></div><label class="lbl">Banner (URL ou deixe a galeria)</label><input id="f_poster" value="" placeholder="Capa da galeria já definida" data-has-data="1">
       <button class="btn small secondary" type="button" id="btnAutoPoster" style="margin-top:8px">🔎 Buscar capa pelo nome</button>
-      <p class="muted" style="font-size:11px;margin-top:6px">A IA de capa busca pôster na Wikipedia pelo nome do filme (precisa de internet).</p><label class="lbl">Ou da galeria</label><input id="f_poster_file" type="file" accept="image/*"><img class="banner-preview" id="bannerPreview" src=""><label class="lbl">Nome</label><input id="f_title" value="Coraline e a Porta secreta"><label class="lbl">Lançamento agendado (opcional)</label><input id="f_release" type="datetime-local" value=""><p class="muted">Vazio = libera na hora de publicar.</p><label class="lbl">Descrição</label><textarea id="f_desc"></textarea><label class="lbl">Gêneros (toque para marcar)</label><div class="genre-chip-row" id="f_genres" data-selected="Suspense|Terror|Aventura|Ficção|Fantasia|Animação"><span class="genre-chip" data-g="Ação">Ação</span><span class="genre-chip on" data-g="Aventura">Aventura</span><span class="genre-chip" data-g="Comédia">Comédia</span><span class="genre-chip" data-g="Drama">Drama</span><span class="genre-chip on" data-g="Terror">Terror</span><span class="genre-chip" data-g="Romance">Romance</span><span class="genre-chip on" data-g="Ficção">Ficção</span><span class="genre-chip on" data-g="Animação">Animação</span><span class="genre-chip" data-g="Documentário">Documentário</span><span class="genre-chip on" data-g="Suspense">Suspense</span><span class="genre-chip on" data-g="Fantasia">Fantasia</span></div><label class="lbl">URL do vídeo (YouTube, Seekee, Vimeo, mp4, m3u8 ou página)</label><input id="f_url" placeholder="YouTube, Seekee, mp4, m3u8 ou página do filme" value="https://ver.123pelicula.com/pt/detail/movie/dJOaDemkfHpWOgAihdiDM-Coraline"><label class="lbl">Legenda (.vtt opcional)</label><input id="f_sub" value=""><div class="btns"><button class="btn small ok" type="button" id="btnPublish">Publicar</button><button class="btn small secondary" type="button" id="btnDraft">Rascunho</button><button class="btn small danger" type="button" id="btnDelete">Excluir</button></div></main>
+      <p class="muted" style="font-size:11px;margin-top:6px">A IA de capa busca pôster na Wikipedia pelo nome do filme (precisa de internet).</p><label class="lbl">Capa automática (pelo nome)</label><p class="muted" style="font-size:11px">Toque para buscar o pôster na Wikipedia pelo nome do filme. Não usa a foto da galeria (evita base64 gigante).</p><input id="f_poster_file" type="file" accept="image/*"><img class="banner-preview" id="bannerPreview" src=""><label class="lbl">Nome</label><input id="f_title" value="Coraline e a Porta secreta"><label class="lbl">Lançamento agendado (opcional)</label><input id="f_release" type="datetime-local" value=""><p class="muted">Vazio = libera na hora de publicar.</p><label class="lbl">Descrição</label><textarea id="f_desc"></textarea><label class="lbl">Gêneros (toque para marcar)</label><div class="genre-chip-row" id="f_genres" data-selected="Suspense|Terror|Aventura|Ficção|Fantasia|Animação"><span class="genre-chip" data-g="Ação">Ação</span><span class="genre-chip on" data-g="Aventura">Aventura</span><span class="genre-chip" data-g="Comédia">Comédia</span><span class="genre-chip" data-g="Drama">Drama</span><span class="genre-chip on" data-g="Terror">Terror</span><span class="genre-chip" data-g="Romance">Romance</span><span class="genre-chip on" data-g="Ficção">Ficção</span><span class="genre-chip on" data-g="Animação">Animação</span><span class="genre-chip" data-g="Documentário">Documentário</span><span class="genre-chip on" data-g="Suspense">Suspense</span><span class="genre-chip on" data-g="Fantasia">Fantasia</span></div><label class="lbl">URL do vídeo (YouTube, Seekee, Vimeo, mp4, m3u8 ou página)</label><input id="f_url" placeholder="YouTube, Seekee, mp4, m3u8 ou página do filme" value="https://ver.123pelicula.com/pt/detail/movie/dJOaDemkfHpWOgAihdiDM-Coraline"><label class="lbl">Legenda (.vtt opcional)</label><input id="f_sub" value=""><div class="btns"><button class="btn small ok" type="button" id="btnPublish">Publicar</button><button class="btn small secondary" type="button" id="btnDraft">Rascunho</button><button class="btn small danger" type="button" id="btnDelete">Excluir</button></div></main>
   </div>
 </div>
 
@@ -3566,21 +3566,38 @@ $("btnHistory").onclick = function () {
       file.onchange = function (ev) {
         var f = ev.target.files && ev.target.files[0];
         if (!f) return;
-        try { toast("Comprimindo capa…"); } catch (e) {}
-        compressImageFile(f, 300, 0.55).then(function (dataUrl) {
-          $("f_poster").value = dataUrl;
-          $("bannerPreview").src = dataUrl;
-          try { if (item && item.id) rememberPoster(item.id, dataUrl); } catch (e) {}
-          try { toast("Capa pronta (" + Math.round(dataUrl.length / 1024) + " KB) · use Copiar HTML p/ outros aparelhos"); } catch (e) {}
-        }).catch(function () {
-          // fallback sem compressão
-          var r = new FileReader();
-          r.onload = function () {
-            $("f_poster").value = r.result;
-            $("bannerPreview").src = r.result;
-          };
-          r.readAsDataURL(f);
-        });
+        // NÃO grava base64 da galeria — busca capa na Wikipedia pelo NOME do filme
+        var title = "";
+        try { title = (($("f_title") && $("f_title").value) || (item && item.title) || "").trim(); } catch (e) {}
+        if (!title) {
+          try { toast("Digite o nome do filme antes de escolher a capa"); } catch (e) {}
+          try { ev.target.value = ""; } catch (e2) {}
+          return;
+        }
+        try { toast("Buscando capa na Wikipedia…"); } catch (e) {}
+        // preview local temporário (só visual)
+        try {
+          var tmpUrl = URL.createObjectURL(f);
+          if ($("bannerPreview")) $("bannerPreview").src = tmpUrl;
+        } catch (e) {}
+        var applyUrl = function (url) {
+          if (!url) {
+            try { toast("Não achei capa · digite a URL no campo ou tente outro nome"); } catch (e) {}
+            return;
+          }
+          if ($("f_poster")) $("f_poster").value = url;
+          if ($("bannerPreview")) $("bannerPreview").src = url;
+          try { if (item && item.id) rememberPoster(item.id, url); } catch (e) {}
+          try { toast("Capa por URL (Wikipedia)"); } catch (e) {}
+        };
+        if (typeof fetchPosterByTitle === "function") {
+          fetchPosterByTitle(title).then(applyUrl).catch(function () {
+            applyUrl("");
+          });
+        } else {
+          try { toast("Busca de capa indisponível"); } catch (e) {}
+        }
+        try { ev.target.value = ""; } catch (e) {}
       };
     }
     $("f_poster").oninput = function () { $("bannerPreview").src = $("f_poster").value || ""; };
@@ -3764,14 +3781,16 @@ $("btnPublish").onclick = function () {
             finish();
           }
         }
-        // se não tem capa, busca automática pelo nome
-        if (!it.poster || !String(it.poster).trim()) {
+        // se não tem capa OU ainda está em base64, busca URL na Wikipedia pelo nome
+        var needsWiki = !it.poster || !String(it.poster).trim() || String(it.poster).indexOf("data:") === 0;
+        if (needsWiki) {
           toast("Buscando capa automática…");
           fetchPosterByTitle(it.title || "").then(function (url) {
             if (url) {
               it.poster = url;
               if ($("f_poster")) $("f_poster").value = url;
               if ($("bannerPreview")) { $("bannerPreview").src = url; $("bannerPreview").style.display = "block"; }
+              try { if (it.id) rememberPoster(it.id, url); } catch (e) {}
             }
             afterPoster();
           }).catch(function () { afterPoster(); });
@@ -4261,19 +4280,19 @@ $("btnPublish").onclick = function () {
         if (btn) { btn.disabled = false; btn.textContent = "📋 Copiar agora"; }
         toast(msg);
       }
-      // Textos grandes (>80kb) quase sempre falham no clipboard do WebView
-      if (len > 80000) {
+      // Textos grandes: clipboard do WebView mente "ok" e fica vazio — não tenta copiar
+      if (len > 20000) {
+        if (downloadTextFile("CineTung_APP.html", str)) {
+          done("HTML baixado · envie esse arquivo no GitHub (clipboard não segura texto grande)");
+          return;
+        }
         var sh = shareOrCopyLarge(str);
         if (sh === "share") {
-          done("Abriu compartilhar · escolha Copiar ou Drive");
+          done("Compartilhar aberto · salve no Drive ou Copiar");
           return;
         }
         if (sh === "android-copy") {
-          done("Copiado via Android");
-          return;
-        }
-        if (downloadTextFile("CineTung_APP.html", str)) {
-          done("Arquivo baixado · use ele no GitHub");
+          done("Pedido de cópia ao Android");
           return;
         }
         try {
@@ -4283,7 +4302,7 @@ $("btnPublish").onclick = function () {
             ta.setSelectionRange(0, str.length);
           }
         } catch (e) {}
-        done("Muito grande p/ clipboard · Selecionar tudo → Copiar");
+        done("Use Baixar HTML · clipboard não funciona com arquivo grande");
         return;
       }
       // 1) textarea do modal (visível)
@@ -4314,7 +4333,7 @@ $("btnPublish").onclick = function () {
         return;
       }
       if (ok) {
-        done("Copiado · cole em outro app para conferir");
+        done("Tentou copiar · cole em outro app para CONFERIR (se vazio, use Baixar HTML)");
       } else {
         var sh3 = shareOrCopyLarge(str);
         if (sh3 === "share") done("Escolha Copiar no menu");
