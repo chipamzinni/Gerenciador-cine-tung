@@ -1531,11 +1531,12 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
 <div id="copyModal" class="">
   <div class="box">
     <b id="copyModalTitle">HTML completo Cine Tung · 11 filme(s) · 1 msg(s) · posters base64 omitidos</b>
-    <p class="muted" id="copyModalHint" style="margin:0">Toque em <b>Copiar agora</b>. Se a área de transferência ficar vazia, use <b>Selecionar tudo</b> → segurar → <b>Copiar</b>.</p>
+    <p class="muted" id="copyModalHint" style="margin:0">HTML grande falha no clipboard do Android. Prefira <b>Baixar HTML</b> ou <b>Selecionar tudo</b> → Copiar. Só confie em “Copiado” se colar e ver o texto.</p>
     <textarea id="copyModalText"></textarea>
     <div class="btns" style="margin:0;flex-wrap:wrap">
       <button class="btn small" type="button" id="copyModalSelect">Selecionar tudo</button>
       <button class="btn small ok" type="button" id="copyModalCopy">📋 Copiar agora</button>
+      <button class="btn small secondary" type="button" id="copyModalDownload">⬇ Baixar HTML</button>
       <button class="btn small secondary" type="button" id="copyModalClose">Fechar</button>
     </div>
   </div>
@@ -4037,12 +4038,13 @@ $("btnPublish").onclick = function () {
   function forceCopyText(str) {
     str = String(str || "");
     if (!str) return false;
-    var ok = false;
+    // textarea VISÍVEL (WebView Android falha com opacity 0 / tamanho 0)
     var ta = document.createElement("textarea");
     ta.value = str;
-    ta.setAttribute("readonly", "");
-    ta.style.cssText = "position:fixed;top:10px;left:10px;width:2px;height:2px;opacity:0.05;z-index:999999;";
+    ta.setAttribute("readonly", "readonly");
+    ta.style.cssText = "position:fixed;top:0;left:0;width:90%;height:40%;opacity:1;z-index:2147483647;font-size:12px;background:#111;color:#fff;";
     document.body.appendChild(ta);
+    var ok = false;
     try {
       ta.focus();
       ta.select();
@@ -4050,16 +4052,43 @@ $("btnPublish").onclick = function () {
       ok = document.execCommand("copy") === true;
     } catch (e) { ok = false; }
     try { document.body.removeChild(ta); } catch (e) {}
-    if (ok) return true;
+    return ok;
+  }
+  function downloadTextFile(filename, text) {
     try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(str);
-        return true;
+      var blob = new Blob([text], { type: "text/html;charset=utf-8" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = filename || "CineTung_APP.html";
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () {
+        try { document.body.removeChild(a); } catch (e) {}
+        try { URL.revokeObjectURL(url); } catch (e) {}
+      }, 800);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  function shareOrCopyLarge(str) {
+    try {
+      if (typeof AndroidAPI !== "undefined" && AndroidAPI) {
+        if (typeof AndroidAPI.shareText === "function") {
+          AndroidAPI.shareText(str);
+          return "share";
+        }
+        if (typeof AndroidAPI.copyToClipboard === "function") {
+          AndroidAPI.copyToClipboard(str);
+          return "android-copy";
+        }
       }
     } catch (e) {}
     try {
-      if (typeof AndroidAPI !== "undefined" && AndroidAPI && typeof AndroidAPI.shareText === "function") {
-        AndroidAPI.shareText(str);
+      if (navigator.share) {
+        navigator.share({ title: "Cine Tung HTML", text: str }).catch(function () {});
         return "share";
       }
     } catch (e) {}
@@ -4223,9 +4252,41 @@ $("btnPublish").onclick = function () {
     $("copyModalCopy").onclick = function (ev) {
       try { if (ev && ev.preventDefault) ev.preventDefault(); } catch (e) {}
       var ta = $("copyModalText");
-      var str = (window.__cineCopyPayload || (ta && ta.value) || "").trim();
-      if (!str) { toast("Nada para copiar"); return; }
-      // 1) tenta copiar do próprio textarea do modal (visível = melhor no WebView)
+      var str = (window.__cineCopyPayload || (ta && ta.value) || "");
+      if (!String(str).trim()) { toast("Nada para copiar"); return; }
+      var len = str.length;
+      var btn = $("copyModalCopy");
+      if (btn) { btn.disabled = true; btn.textContent = "Copiando…"; }
+      function done(msg) {
+        if (btn) { btn.disabled = false; btn.textContent = "📋 Copiar agora"; }
+        toast(msg);
+      }
+      // Textos grandes (>80kb) quase sempre falham no clipboard do WebView
+      if (len > 80000) {
+        var sh = shareOrCopyLarge(str);
+        if (sh === "share") {
+          done("Abriu compartilhar · escolha Copiar ou Drive");
+          return;
+        }
+        if (sh === "android-copy") {
+          done("Copiado via Android");
+          return;
+        }
+        if (downloadTextFile("CineTung_APP.html", str)) {
+          done("Arquivo baixado · use ele no GitHub");
+          return;
+        }
+        try {
+          if (ta) {
+            ta.focus();
+            ta.select();
+            ta.setSelectionRange(0, str.length);
+          }
+        } catch (e) {}
+        done("Muito grande p/ clipboard · Selecionar tudo → Copiar");
+        return;
+      }
+      // 1) textarea do modal (visível)
       var ok = false;
       try {
         if (ta) {
@@ -4236,35 +4297,46 @@ $("btnPublish").onclick = function () {
           ok = document.execCommand("copy") === true;
         }
       } catch (e) { ok = false; }
-      // 2) forceCopyText (textarea auxiliar)
+      // 2) textarea auxiliar visível
       if (!ok) {
-        var r = forceCopyText(str);
-        if (r === true) ok = true;
-        if (r === "share") {
-          toast("No menu do Android toque em Copiar");
-          return;
-        }
+        try { ok = forceCopyText(str) === true; } catch (e) { ok = false; }
       }
-      // 3) clipboard API
+      // 3) Clipboard API (só confirma no then)
       if (!ok && navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(str).then(function () {
-          toast("Copiado!");
+          done("Copiado!");
         }).catch(function () {
-          toast("Falhou · use Selecionar tudo e copie na mão");
+          var sh2 = shareOrCopyLarge(str);
+          if (sh2 === "share") done("Use Copiar no menu de compartilhar");
+          else if (downloadTextFile("CineTung_APP.html", str)) done("Baixado como arquivo");
+          else done("Falhou · Selecionar tudo e copie na mão");
         });
         return;
       }
-      if (ok) toast("Copiado · confira colando em outro app");
+      if (ok) {
+        done("Copiado · cole em outro app para conferir");
+      } else {
+        var sh3 = shareOrCopyLarge(str);
+        if (sh3 === "share") done("Escolha Copiar no menu");
+        else if (downloadTextFile("CineTung_APP.html", str)) done("Arquivo HTML baixado");
+        else {
+          try {
+            if (ta) { ta.focus(); ta.select(); ta.setSelectionRange(0, str.length); }
+          } catch (e) {}
+          done("Selecione o texto e copie manualmente");
+        }
+      }
+    };
+  }
+  if ($("copyModalDownload")) {
+    $("copyModalDownload").onclick = function () {
+      var str = (window.__cineCopyPayload || ($("copyModalText") && $("copyModalText").value) || "");
+      if (!String(str).trim()) { toast("Nada para baixar"); return; }
+      if (downloadTextFile("CineTung_APP.html", str)) toast("Download iniciado");
       else {
-        // último recurso: abre share do Android
-        try {
-          if (typeof AndroidAPI !== "undefined" && AndroidAPI && AndroidAPI.shareText) {
-            AndroidAPI.shareText(str);
-            toast("Escolha Copiar no menu");
-            return;
-          }
-        } catch (e) {}
-        toast("Selecione o texto e copie manualmente");
+        var sh = shareOrCopyLarge(str);
+        if (sh) toast("Use compartilhar / salvar");
+        else toast("Não foi possível baixar neste WebView");
       }
     };
   }
