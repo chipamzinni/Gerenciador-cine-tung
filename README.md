@@ -962,6 +962,60 @@ position: absolute; top: 50%; transform: translateY(-50%);width: 32px; height: 3
 display: flex; align-items: center; justify-content: center;height: 100%; color: #666; font-size: 13px;}
 </style>
 
+<style id="cineTungAdaptCss">
+/* cobre marca d'água "Built with HTML to APK Builder" */
+#apkWatermarkMask{
+  position:fixed!important;left:0!important;right:0!important;bottom:0!important;
+  height:28px!important;z-index:2147483645!important;
+  background:#0a0a0b!important;pointer-events:none!important;
+}
+.bottom-nav{z-index:2147483646!important}
+.drawer-credits{position:relative;z-index:5;padding-bottom:28px}
+
+/* ===== LANDSCAPE: nav lateral compacta ===== */
+@media (orientation: landscape){
+  #viewApp.on{
+    padding-bottom:0!important;
+    padding-left:58px!important;
+  }
+  .bottom-nav{
+    top:0!important;bottom:0!important;left:0!important;right:auto!important;
+    width:56px!important;height:100%!important;
+    grid-template-columns:1fr!important;
+    grid-template-rows:repeat(4,minmax(0,1fr))!important;
+    border-top:0!important;
+    border-right:1px solid var(--line)!important;
+    padding:6px 4px!important;
+    gap:0!important;
+  }
+  .bottom-nav button{
+    padding:6px 2px!important;
+    font-size:0!important; /* só ícone */
+    letter-spacing:0!important;
+    gap:0!important;
+    min-height:0!important;
+  }
+  .bottom-nav button .nav-ico,
+  .bottom-nav button svg,
+  .bottom-nav button span{
+    font-size:18px!important;
+    width:22px!important;height:22px!important;
+  }
+  .top{
+    padding:6px 10px 6px!important;
+  }
+  .top-row{margin-bottom:6px!important}
+  .brand{font-size:16px!important}
+  .search{padding:6px 10px!important}
+  .view-main{padding:10px 12px!important}
+  .page-title{font-size:20px!important;margin-bottom:4px!important}
+  #apkWatermarkMask{
+    left:0!important;width:56px!important;right:auto!important;
+    height:100%!important;bottom:0!important;top:0!important;
+    background:transparent!important;
+  }
+}
+</style>
 </head>
 <body style="background-color:#0a0a0b;" class="">
 <div id="appBg" aria-hidden="true" style="background-color: rgb(10, 10, 11); background-image: linear-gradient(rgba(8, 8, 10, 0.75) 0%, rgba(8, 8, 10, 0.5) 45%, rgba(8, 8, 10, 0.85) 100%), url(); background-size: cover, cover; background-position: center center, center center; background-repeat: no-repeat, no-repeat; pointer-events: none;"></div>
@@ -1287,7 +1341,8 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
 
       </div>
     </section>
-  </main>
+  <div id="apkWatermarkMask" aria-hidden="true"></div>
+</main>
 
 <nav class="bottom-nav" id="bottomNav" style="pointer-events: auto;">
     <button type="button" class="active" data-tab="lib"><span class="sym ico-lib"></span>Biblioteca</button>
@@ -1314,10 +1369,14 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
       <p class="muted" style="font-size:11px">Escolha uma imagem de fundo ou volte ao padrão.</p>
       <input type="file" id="bgImagePicker" accept="image/*" style="width:100%;font-size:12px;color:var(--muted)">
       <button class="btn small secondary block" type="button" id="btnResetBg" style="margin-top:8px">Fundo padrão</button>
+      <label class="lbl">Rotação da tela</label>
+      <p class="muted" style="font-size:11px">Trava na orientação atual (retrato ou paisagem).</p>
+      <button class="btn small secondary block" type="button" id="btnLockOrient" style="margin-top:8px">🔓 Rotação livre</button>
+
       <div class="drawer-credits">
-        <b>Créditos</b><br>
-        Raphael Rocha<br>
-        Obliry
+        <b style="font-size:16px;display:block;margin-bottom:6px">Créditos</b>
+        <span style="font-size:18px;font-weight:700;color:var(--text);display:block;line-height:1.35">Raphael Rocha</span>
+        <span style="font-size:18px;font-weight:700;color:var(--accent);display:block;line-height:1.35">Obliry</span>
       </div>
     </div>
   </div>
@@ -1369,6 +1428,7 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
   <div class="panel-head">
     <button class="icon-btn" type="button" id="histBack">← Voltar</button>
     <div><b>Histórico</b><div class="muted">Continue de onde parou</div></div>
+    <button class="btn small danger" type="button" id="btnClearHist" style="margin-left:auto">Limpar</button>
   </div>
   <div class="panel-body" id="histBody"></div>
 </div>
@@ -1377,12 +1437,12 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
 <div class="panel" id="msgPanel">
   <div class="panel-head">
     <button class="icon-btn" type="button" id="msgBack">← Voltar</button>
-    <div><b>Mensagem para o dono</b><div class="muted">Escreva e copie para enviar ao dono</div></div>
+    <div><b>Mensagem para o dono</b><div class="muted">Envia para o e-mail do dono (precisa de internet)</div></div>
   </div>
   <div class="panel-body">
     <textarea id="msgText" rows="4" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true" placeholder="Ex: Podem adicionar o filme X completo?" style="width:100%;min-height:110px;resize:vertical;-webkit-user-select:text;user-select:text;pointer-events:auto;"></textarea>
     <div class="btns" style="margin-top:10px">
-      <button class="btn" type="button" id="msgSend" style="flex:1;width:auto;margin:0">Salvar local</button>
+      <button class="btn" type="button" id="msgSend" style="flex:1;width:auto;margin:0">Enviar ao dono</button>
       <button class="btn secondary" type="button" id="btnShareMsg" style="flex:1;width:auto;margin:0">📋 Copiar texto</button>
     </div>
     <h3 style="margin:18px 0 8px;font-size:15px">Suas mensagens</h3>
@@ -3081,7 +3141,82 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
   };
   $("epBtn").onclick = function () { $("epList").classList.toggle("show"); };
   /* history */
-  $("btnHistory").onclick = function () {
+  
+  // --- limpar histórico ---
+  if ($("btnClearHist")) {
+    $("btnClearHist").onclick = function () {
+      try {
+        if (!confirm("Apagar todo o histórico de filmes?")) return;
+        localStorage.removeItem(HIST_KEY);
+        var box = $("histBody");
+        if (box) box.innerHTML = '<div class="empty">Nada no histórico.</div>';
+        toast("Histórico limpo");
+      } catch (e) { try { toast("Erro ao limpar"); } catch (e2) {} }
+    };
+  }
+
+  // --- trava de rotação (orientação atual) ---
+  var ORIENT_LOCK_KEY = "cinetung_orient_lock_v1";
+  function currentOrientType() {
+    try {
+      if (screen.orientation && screen.orientation.type) return screen.orientation.type;
+    } catch (e) {}
+    try {
+      return window.innerWidth > window.innerHeight ? "landscape-primary" : "portrait-primary";
+    } catch (e2) {}
+    return "portrait-primary";
+  }
+  function refreshOrientBtn() {
+    var btn = $("btnLockOrient");
+    if (!btn) return;
+    var locked = "";
+    try { locked = localStorage.getItem(ORIENT_LOCK_KEY) || ""; } catch (e) {}
+    if (locked) {
+      btn.textContent = "🔒 Rotação travada";
+      btn.classList.add("ok");
+    } else {
+      btn.textContent = "🔓 Rotação livre";
+      btn.classList.remove("ok");
+    }
+  }
+  function applyOrientLock() {
+    var locked = "";
+    try { locked = localStorage.getItem(ORIENT_LOCK_KEY) || ""; } catch (e) {}
+    if (!locked) {
+      try {
+        if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+      } catch (e) {}
+      return;
+    }
+    try {
+      if (screen.orientation && screen.orientation.lock) {
+        var p = screen.orientation.lock(locked);
+        if (p && p.catch) p.catch(function () {});
+      }
+    } catch (e) {}
+  }
+  if ($("btnLockOrient")) {
+    $("btnLockOrient").onclick = function () {
+      var locked = "";
+      try { locked = localStorage.getItem(ORIENT_LOCK_KEY) || ""; } catch (e) {}
+      if (locked) {
+        try { localStorage.removeItem(ORIENT_LOCK_KEY); } catch (e) {}
+        try {
+          if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+        } catch (e2) {}
+        toast("Rotação livre");
+      } else {
+        var t = currentOrientType();
+        try { localStorage.setItem(ORIENT_LOCK_KEY, t); } catch (e) {}
+        applyOrientLock();
+        toast("Travado em " + (t.indexOf("landscape") >= 0 ? "horizontal" : "vertical"));
+      }
+      refreshOrientBtn();
+    };
+  }
+  try { refreshOrientBtn(); applyOrientLock(); } catch (e) {}
+
+$("btnHistory").onclick = function () {
     $("histPanel").classList.add("open");
     var box = $("histBody");
     var hist = [];
@@ -3212,18 +3347,62 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
     var text = (ta && ta.value ? ta.value : "").trim();
     if (!text) { alert("Escreva uma mensagem"); return; }
     var p = getProfile();
-    var list = loadMsgs();
-    list.unshift({
-      id: "m_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-      fromName: p.name || "Espectador",
-      fromAvatar: p.avatar || "",
-      text: text,
-      at: Date.now()
-    });
-    saveMsgs(list);
-    if (ta) ta.value = "";
-    renderMyMsgs();
-    toast("Mensagem salva localmente");
+    var fromName = (p && p.name) ? p.name : "Espectador";
+    var btn = $("msgSend");
+    var prevLabel = btn ? btn.textContent : "";
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Enviando…";
+    }
+    // salva local sempre
+    try {
+      var list = loadMsgs();
+      list.unshift({
+        id: "m_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        fromName: fromName,
+        fromAvatar: (p && p.avatar) || "",
+        text: text,
+        at: Date.now()
+      });
+      saveMsgs(list);
+      renderMyMsgs();
+    } catch (e) {}
+    // envia para o e-mail do dono (FormSubmit — sem backend)
+    var OWNER_EMAIL = "philcohtv@gmail.com";
+    var payload = {
+      name: fromName,
+      email: "noreply@cinetung.app",
+      message: text,
+      _subject: "Cine Tung — mensagem de " + fromName,
+      _template: "table",
+      _captcha: "false"
+    };
+    fetch("https://formsubmit.co/ajax/" + OWNER_EMAIL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (res && res.ok) {
+          if (ta) ta.value = "";
+          toast("Mensagem enviada ao dono");
+        } else {
+          toast("Salva no app. Envio de e-mail falhou — use Copiar texto");
+        }
+      })
+      .catch(function () {
+        toast("Sem rede. Mensagem salva local — use Copiar texto");
+      })
+      .finally(function () {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = prevLabel || "Enviar ao dono";
+        }
+      });
   };
   $("btnAdminMsg").onclick = function () {
     $("adminMsgPanel").classList.add("open");
