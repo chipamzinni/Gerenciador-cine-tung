@@ -606,7 +606,7 @@ margin: 0 0 6px;font-family: var(--serif);font-size: 28px;font-weight: 400;lette
 .muted {
  color: var(--muted); font-size: 12px; }
 .grid {
-display: grid;grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));gap: 16px;margin-top: 16px;}
+display: grid;grid-template-columns: repeat(auto-fill, minmax(var(--card-min, 148px), 1fr));gap: 16px;margin-top: 16px;}
 .card {
 background: var(--panel);border: 1px solid var(--line);border-radius: var(--radius);overflow: hidden;cursor: pointer;transition: transform .35s var(--ease), border-color .3s, box-shadow .35s;animation: scaleIn .45s var(--ease) both;}
 .card:nth-child(1) {
@@ -972,25 +972,25 @@ display: flex; align-items: center; justify-content: center;height: 100%; color:
 .bottom-nav{z-index:2147483646!important}
 .drawer-credits{position:relative;z-index:5;padding-bottom:28px}
 
-/* ===== LANDSCAPE: nav lateral compacta ===== */
+/* ===== LANDSCAPE: nav lateral + topo bem compacto ===== */
 @media (orientation: landscape){
   #viewApp.on{
     padding-bottom:0!important;
-    padding-left:58px!important;
+    padding-left:48px!important;
   }
   .bottom-nav{
     top:0!important;bottom:0!important;left:0!important;right:auto!important;
-    width:56px!important;height:100%!important;
+    width:48px!important;height:100%!important;
     grid-template-columns:1fr!important;
     grid-template-rows:repeat(4,minmax(0,1fr))!important;
     border-top:0!important;
     border-right:1px solid var(--line)!important;
-    padding:6px 4px!important;
+    padding:4px 2px!important;
     gap:0!important;
   }
   .bottom-nav button{
-    padding:6px 2px!important;
-    font-size:0!important; /* só ícone */
+    padding:4px 0!important;
+    font-size:0!important;
     letter-spacing:0!important;
     gap:0!important;
     min-height:0!important;
@@ -998,21 +998,38 @@ display: flex; align-items: center; justify-content: center;height: 100%; color:
   .bottom-nav button .nav-ico,
   .bottom-nav button svg,
   .bottom-nav button span{
-    font-size:18px!important;
-    width:22px!important;height:22px!important;
+    font-size:16px!important;
+    width:18px!important;height:18px!important;
   }
   .top{
-    padding:6px 10px 6px!important;
+    padding:4px 8px 4px!important;
   }
-  .top-row{margin-bottom:6px!important}
-  .brand{font-size:16px!important}
-  .search{padding:6px 10px!important}
-  .view-main{padding:10px 12px!important}
-  .page-title{font-size:20px!important;margin-bottom:4px!important}
+  .top-row{
+    margin-bottom:4px!important;
+    gap:6px!important;
+  }
+  .brand{font-size:14px!important}
+  .top-avatar{width:28px!important;height:28px!important}
+  .icon-btn,.genre-fab{
+    width:30px!important;height:30px!important;
+    min-width:30px!important;
+  }
+  .search{
+    padding:4px 8px!important;
+    min-height:0!important;
+  }
+  .search input{
+    font-size:12px!important;
+    padding:4px 0!important;
+  }
+  .view-main{padding:6px 10px!important}
+  .page-title{font-size:16px!important;margin:0 0 2px!important}
+  .page > .muted{display:none!important}
+  .grid{gap:10px!important;margin-top:8px!important}
   #apkWatermarkMask{
-    left:0!important;width:56px!important;right:auto!important;
-    height:100%!important;bottom:0!important;top:0!important;
-    background:transparent!important;
+    left:0!important;width:48px!important;right:auto!important;
+    height:auto!important;bottom:0!important;top:auto!important;
+    background:#0a0a0b!important;
   }
 }
 </style>
@@ -1365,6 +1382,12 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
         <button class="btn secondary block" type="button" id="btnDrawerHome"><span class="dot"></span> Início (Biblioteca)</button>
     <button type="button" class="drawer-item" id="btnDrawerSettings"><span>⚙️</span> Configurações</button>
     <div class="drawer-settings hidden" id="drawerSettingsPanel">
+      <label class="lbl">Tamanho dos banners</label>
+      <p class="muted" style="font-size:11px">Menor = mais filmes na tela. Salva só neste aparelho.</p>
+      <input type="range" id="cardSizeRange" min="90" max="180" step="2" value="148" style="width:100%;margin-top:8px">
+      <div class="muted" style="font-size:11px;margin-top:4px">Largura: <span id="cardSizeLabel">148</span>px</div>
+      <button class="btn small block" type="button" id="btnSaveCardSize" style="margin-top:8px">Salvar tamanho</button>
+
       <label class="lbl">Fundo do app</label>
       <p class="muted" style="font-size:11px">Escolha uma imagem de fundo ou volte ao padrão.</p>
       <input type="file" id="bgImagePicker" accept="image/*" style="width:100%;font-size:12px;color:var(--muted)">
@@ -3156,6 +3179,42 @@ transform: translateY(-50%) scale(24);transition: transform 1.55s cubic-bezier(.
   }
 
   // --- trava de rotação (orientação atual) ---
+  
+  // --- tamanho dos cards (localStorage) ---
+  var CARD_SIZE_KEY = "cinetung_card_min_v1";
+  function applyCardSize(px, previewOnly) {
+    px = Math.max(90, Math.min(180, parseInt(px, 10) || 148));
+    try { document.documentElement.style.setProperty("--card-min", px + "px"); } catch (e) {}
+    var lab = $("cardSizeLabel");
+    if (lab) lab.textContent = String(px);
+    var range = $("cardSizeRange");
+    if (range && String(range.value) !== String(px)) range.value = String(px);
+    if (!previewOnly) {
+      try { localStorage.setItem(CARD_SIZE_KEY, String(px)); } catch (e) {}
+    }
+  }
+  function loadCardSize() {
+    var v = 148;
+    try {
+      var s = localStorage.getItem(CARD_SIZE_KEY);
+      if (s) v = parseInt(s, 10) || 148;
+    } catch (e) {}
+    applyCardSize(v, true);
+  }
+  if ($("cardSizeRange")) {
+    $("cardSizeRange").oninput = function () {
+      applyCardSize(this.value, true);
+    };
+  }
+  if ($("btnSaveCardSize")) {
+    $("btnSaveCardSize").onclick = function () {
+      var v = ($("cardSizeRange") && $("cardSizeRange").value) || 148;
+      applyCardSize(v, false);
+      toast("Tamanho salvo");
+    };
+  }
+  try { loadCardSize(); } catch (e) {}
+
   var ORIENT_LOCK_KEY = "cinetung_orient_lock_v1";
   function currentOrientType() {
     try {
